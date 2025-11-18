@@ -1,3 +1,4 @@
+import os
 import requests
 from lxml import etree
 import time
@@ -8,6 +9,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 
 def get_content_with_selenium(url, xpath):
@@ -21,28 +26,28 @@ def get_content_with_selenium(url, xpath):
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        
+
         # 初始化WebDriver
         driver = webdriver.Chrome(options=chrome_options)
         driver.get(url)
-        
+
         # 等待元素加载（最多20秒）
         wait = WebDriverWait(driver, 20)
         element = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
-        
+
         # 获取内容
         content = element.text.strip()
-        
+
         # 获取页面标题
         title = driver.title
-        
+
         # 获取完整页面源代码
         page_source = driver.page_source
         tree = etree.HTML(page_source)
-        
+
         # 关闭浏览器
         driver.quit()
-        
+
         return content, None, tree, title
     except Exception as e:
         print(f"获取内容出错 ({url}): {e}")
@@ -59,7 +64,7 @@ def get_webpage_title(tree, title=None):
         # 如果已经从Selenium获取了标题，直接返回
         if title:
             return title
-            
+
         if tree is not None:
             title_elements = tree.xpath('//title')
             if title_elements:
@@ -144,13 +149,11 @@ def monitor_websites(url_xpath_pairs, interval=60, receiver_email=None):
 if __name__ == "__main__":
     # 要监控的URL和对应的XPath路径（使用字典）
     url_xpath_pairs = {
-        "https://example1.com/page": "/html/body/div[2]/div/div[4]/div/ul/li[2]/a",
-        "https://example2.com/page": "/html/body/div[2]/div/div[4]/div/ul/li[2]/a",
-        # 添加更多的URL和XPath路径
+        "https://new.saikr.com/vse/apmcm/2025": "/html/body/div[1]/div/div[1]/div/div/div[2]/div[2]/div/div/div[1]/ul/li[2]/div/sup",
     }
 
-    # 设置接收通知的邮箱地址
-    receiver_email = 'your_email@example.com'  # 替换为您的实际收件人邮箱
+    # 设置接收通知的邮箱地址（从环境变量读取）
+    receiver_email = os.getenv("RECEIVER_EMAIL")
 
     # 设置检查间隔为600秒，并添加接收邮箱
     monitor_websites(url_xpath_pairs, 600, receiver_email)

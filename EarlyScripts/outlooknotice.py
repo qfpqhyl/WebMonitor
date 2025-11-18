@@ -1,8 +1,13 @@
+import os
 import smtplib
 import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 
 def send_email(subject, content, to_email, attachment_path=None):
@@ -15,11 +20,11 @@ def send_email(subject, content, to_email, attachment_path=None):
         to_email (str): 收件人邮箱
         attachment_path (str, optional): 附件路径
     """
-    # SMTP 服务器信息 自行配置
-    smtp_server = "******"
-    smtp_port = ***  # SSL 端口
-    smtp_user = "******"  # 发件人邮箱
-    smtp_password = "******"  # SMTP 密码
+    # SMTP 服务器信息 从环境变量读取
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = int(os.getenv("SMTP_PORT", 465))  # 默认465
+    smtp_user = os.getenv("SMTP_USER")  # 发件人邮箱
+    smtp_password = os.getenv("SMTP_PASSWORD")  # SMTP 密码
 
     # 创建邮件对象
     msg = MIMEMultipart()

@@ -1,71 +1,137 @@
-# 网页内容变动监控通知系统
+# WebMonitor - 网页内容变动监控通知系统
 
-本项目是一个使用 Python 编写的网页内容自动监控及邮件通知工具，适用于检测网页指定区域内容变动并通过邮件提醒。
+本项目是一个现代化的网页内容监控平台，提供前后端分离架构，支持实时监控网页内容变化并通过多种方式发送通知。
+
+## 🚀 项目架构
+
+### 当前版本
+- **前端**: React + TypeScript (开发中)
+- **后端**: FastAPI + Python (开发中)
+- **数据库**: PostgreSQL (开发中)
+
+### 早期版本
+早期的纯 Python 脚本版本已移至 [`EarlyScripts`](./EarlyScripts/) 目录，包含：
+- 单体脚本实现
+- 基础的网页监控功能
+- 邮件通知功能
 
 ---
 
 ## 功能简介
 
-- **多网页/XPath 支持**：可同时监控多个网页指定内容（XPath）。
-- **自动邮件通知**：检测到内容变化后自动邮件提醒。
-- **可配置检测频率**：自定义检测时间间隔。
-- **Selenium 动态内容抓取**：兼容动态网页。
-- **TODO**：为需要登录才能访问的网页添加 session（如 cookies、headers 或 requests.Session），以便监控受限页面。
+- **多网页/XPath 支持**：可同时监控多个网页指定内容（XPath）
+- **自动邮件通知**：检测到内容变化后自动邮件提醒
+- **可配置检测频率**：自定义检测时间间隔
+- **Selenium 动态内容抓取**：兼容动态网页
+- **环境变量配置**：敏感信息安全存储，避免泄露到版本控制
+- **TODO**：为需要登录才能访问的网页添加 session（如 cookies、headers 或 requests.Session），以便监控受限页面
 
 ---
 
-## 快速使用
+## 快速开始
 
-### 1. 环境准备
+### 🔄 使用早期脚本版本
 
-- Python 3.6+
-- 安装依赖：
+如果你需要立即使用基础监控功能，可以使用早期脚本版本：
 
-  ```bash
-  pip install requests lxml selenium
-  ```
+1. **环境准备**
+   ```bash
+   cd EarlyScripts
+   pip install -r ../requirements.txt
+   ```
 
-- 安装 Chrome 浏览器和对应版本的 ChromeDriver。
+2. **配置环境变量**
+   ```bash
+   # 编辑 .env 文件
+   vim .env
+   ```
 
-### 2. 配置监控网址与 XPath
+3. **运行脚本**
+   ```bash
+   python main.py
+   ```
 
-在 `main.py` 的 `url_xpath_pairs` 字典中添加目标网址及 XPath：
+### 🆕 新版本开发中
 
-```python
-url_xpath_pairs = {
-    "https://example.com/page": "/html/body/div[2]/div/div[4]/div/ul/li[2]/a",
-    ...
-}
+新版本将提供以下功能：
+- 🌐 现代化 Web 界面
+- 📊 实时监控仪表板
+- 🔧 可视化配置界面
+- 📱 多种通知方式
+- 📈 监控历史和统计
+- 👥 多用户支持
+
+**开发状态**: 🚧 前后端架构开发中...
+
+---
+
+## 环境变量说明
+
+所有敏感信息都通过环境变量配置，确保信息安全：
+
+| 变量名 | 说明 | 示例 |
+|--------|------|------|
+| `SMTP_SERVER` | SMTP 服务器地址 | `smtp.feishu.cn` |
+| `SMTP_PORT` | SMTP 端口号 | `465` |
+| `SMTP_USER` | 发件人邮箱 | `notice@example.com` |
+| `SMTP_PASSWORD` | SMTP 密码/授权码 | `your_password` |
+| `RECEIVER_EMAIL` | 接收通知的邮箱 | `your_email@example.com` |
+
+---
+
+## XPath 获取方法
+
+1. 在浏览器中打开目标网页
+2. 右键点击要监控的内容 → 检查元素
+3. 在开发者工具中，右键点击选中的元素 → Copy → Copy XPath
+
+---
+
+## 项目结构
+
+```
+WebMonitor/
+├── EarlyScripts/        # 早期脚本版本
+│   ├── main.py         # 早期主程序
+│   ├── outlooknotice.py # 早期邮件模块
+│   └── README.md       # 早期版本说明
+├── frontend/           # React 前端 (开发中)
+├── backend/            # FastAPI 后端 (开发中)
+├── .env                # 环境变量配置
+├── .gitignore          # Git 忽略配置
+├── requirements.txt    # Python 依赖
+└── README.md          # 项目说明文档
 ```
 
-### 3. 设置收件邮箱
+---
 
-在 `main.py` 修改：
+## 安全注意事项
 
-```python
-receiver_email = 'your_email@example.com'
-```
-
-### 4. 启动脚本
-
-```bash
-nohup python3 main.py > mylog.out 2>&1 &
-```
+- ✅ `.env` 文件已被 `.gitignore` 忽略，不会上传到版本控制
+- ✅ 所有敏感信息都通过环境变量管理
+- ⚠️ 邮箱密码/授权码请使用应用专用密码，避免使用主密码
+- ⚠️ 定期更换邮箱密码和授权码
+- ⚠️ 不要将 `.env` 文件分享或上传到公共平台
 
 ---
 
-## 邮件通知配置
+## 常见问题
 
-邮件发送通过 SMTP 实现。请在 `outlooknotice.py` 中填写你的邮箱 SMTP 地址、账号和授权码。
+### 1. 如何获取邮箱的 SMTP 配置？
+- **飞书邮箱**：服务器 `smtp.feishu.cn`，端口 `465`
+- **QQ邮箱**：服务器 `smtp.qq.com`，端口 `465`
+- **163邮箱**：服务器 `smtp.163.com`，端口 `465`
+- **Gmail**：服务器 `smtp.gmail.com`，端口 `587`
+
+### 2. 如何获取邮箱授权码？
+大多数邮箱服务需要使用应用专用密码而非登录密码：
+- QQ邮箱：设置 → 账户 → POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务 → 开启服务 → 生成授权码
+- 飞书邮箱：设置 → 邮箱 → SMTP设置 → 生成应用密码
+
+### 3. ChromeDriver 配置
+- 下载与 Chrome 浏览器版本对应的 ChromeDriver
+- 将 chromedriver 添加到系统 PATH 或放在项目目录中
 
 ---
 
-## 注意事项
-
-- XPath 路径请用浏览器开发者工具获取。
-- 邮箱账号及授权码请注意安全，避免泄露。
-- 本工具仅供学习或个人自动通知用途。
-
----
-
-**使用愉快！**
+**使用愉快！如有问题欢迎提交 Issue。**
