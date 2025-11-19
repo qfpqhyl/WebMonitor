@@ -30,21 +30,13 @@
 git clone https://github.com/qfpqhyl/WebMonitor.git
 
 cd WebMonitor
-
-# 安装依赖
-pip install -r requirements.txt
 ```
 
-### 2. 配置环境变量
-
-创建 `.env` 文件：
+### 2. 安装前端依赖
 
 ```bash
-SMTP_SERVER=smtp.example.com
-SMTP_PORT=465
-SMTP_USER=your_email@example.com
-SMTP_PASSWORD=your_app_password
-RECEIVER_EMAIL=receiver@example.com
+cd frontend
+npm install
 ```
 
 ### 3. 启动服务
@@ -52,6 +44,7 @@ RECEIVER_EMAIL=receiver@example.com
 ```bash
 # 启动后端
 cd backend
+pip install -r backend/requirements.txt
 python main.py
 
 # 启动前端 (新终端)
@@ -94,14 +87,13 @@ WebMonitor/
 ├── backend/            # FastAPI后端
 ├── frontend/           # React前端
 ├── EarlyScripts/       # 早期Python脚本
-├── requirements.txt    # Python依赖
-└── .env               # 环境变量配置
+└── README.md           # 项目说明
 ```
 
 ## ⚠️ 注意事项
 
-- 使用应用专用密码而非邮箱主密码
-- 监控间隔建议不少于 60 秒
+- 邮件配置通过 Web 界面完成，建议使用应用专用密码
+- 监控间隔建议不少于 60 秒，避免对目标网站造成压力
 - 确保 ChromeDriver 版本与 Chrome 浏览器匹配
 - XPath 选择器应选择稳定元素避免动态 ID
 
