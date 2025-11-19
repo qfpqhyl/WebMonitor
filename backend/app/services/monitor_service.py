@@ -83,7 +83,7 @@ class MonitorService:
         """
         db = SessionLocal()
         try:
-            from crud import get_monitor_task
+            from ..db.crud import get_monitor_task
             task = get_monitor_task(db, task_id)
 
             if not task or not task.is_active:
@@ -176,7 +176,7 @@ class MonitorService:
         """
         db = SessionLocal()
         try:
-            from crud import get_monitor_task
+            from ..db.crud import get_monitor_task
             task = get_monitor_task(db, task_id)
 
             if not task:

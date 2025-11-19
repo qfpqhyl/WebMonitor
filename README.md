@@ -1,137 +1,116 @@
 # WebMonitor - 网页内容变动监控通知系统
 
-本项目是一个现代化的网页内容监控平台，提供前后端分离架构，支持实时监控网页内容变化并通过多种方式发送通知。
+现代化的网页内容监控平台，支持实时监控网页内容变化并通过邮件发送通知。
 
-## 🚀 项目架构
+![](./image/样例图片.png)
 
-### 当前版本
-- **前端**: React + TypeScript (开发中)
-- **后端**: FastAPI + Python (开发中)
-- **数据库**: PostgreSQL (开发中)
+## 🚀 功能特性
 
-### 早期版本
-早期的纯 Python 脚本版本已移至 [`EarlyScripts`](./EarlyScripts/) 目录，包含：
-- 单体脚本实现
-- 基础的网页监控功能
-- 邮件通知功能
+- **实时监控**: 支持多个网页同时监控，自定义检查间隔
+- **精准定位**: 基于 XPath 精确定位要监控的内容
+- **智能检测**: 自动检测网页内容变化，支持动态网页
+- **邮件通知**: 配置 SMTP 邮件服务器，内容变化时自动发送通知
+- **可视化管理**: 现代化 Web 界面，直观管理监控任务
+- **历史记录**: 完整的监控日志记录和查询
 
----
+## 🏗️ 技术架构
 
-## 功能简介
+- **前端**: React 18 + Material-UI + React Query
+- **后端**: FastAPI + SQLAlchemy + APScheduler
+- **监控引擎**: Selenium WebDriver
+- **数据库**: SQLite (可扩展至 PostgreSQL)
+- **邮件服务**: SMTP SSL/TLS
 
-- **多网页/XPath 支持**：可同时监控多个网页指定内容（XPath）
-- **自动邮件通知**：检测到内容变化后自动邮件提醒
-- **可配置检测频率**：自定义检测时间间隔
-- **Selenium 动态内容抓取**：兼容动态网页
-- **环境变量配置**：敏感信息安全存储，避免泄露到版本控制
-- **TODO**：为需要登录才能访问的网页添加 session（如 cookies、headers 或 requests.Session），以便监控受限页面
+## 🚀 快速开始
 
----
+### 1. 环境准备
 
-## 快速开始
+```bash
+# 克隆项目
+git clone <repository-url>
+cd WebMonitor
 
-### 🔄 使用早期脚本版本
+# 安装依赖
+pip install -r requirements.txt
+```
 
-如果你需要立即使用基础监控功能，可以使用早期脚本版本：
+### 2. 配置环境变量
 
-1. **环境准备**
-   ```bash
-   cd EarlyScripts
-   pip install -r ../requirements.txt
-   ```
+创建 `.env` 文件：
 
-2. **配置环境变量**
-   ```bash
-   # 编辑 .env 文件
-   vim .env
-   ```
+```bash
+SMTP_SERVER=smtp.example.com
+SMTP_PORT=465
+SMTP_USER=your_email@example.com
+SMTP_PASSWORD=your_app_password
+RECEIVER_EMAIL=receiver@example.com
+```
 
-3. **运行脚本**
-   ```bash
-   python main.py
-   ```
+### 3. 启动服务
 
-### 🆕 新版本开发中
+```bash
+# 启动后端
+cd backend
+python main.py
 
-新版本将提供以下功能：
-- 🌐 现代化 Web 界面
-- 📊 实时监控仪表板
-- 🔧 可视化配置界面
-- 📱 多种通知方式
-- 📈 监控历史和统计
-- 👥 多用户支持
+# 启动前端 (新终端)
+cd frontend
+npm install
+npm start
+```
 
-**开发状态**: 🚧 前后端架构开发中...
+### 4. 访问应用
 
----
+- 前端界面: http://localhost:3000
+- 后端 API: http://localhost:8000
+- API 文档: http://localhost:8000/docs
 
-## 环境变量说明
+## 📖 使用指南
 
-所有敏感信息都通过环境变量配置，确保信息安全：
+### 添加监控任务
 
-| 变量名 | 说明 | 示例 |
-|--------|------|------|
-| `SMTP_SERVER` | SMTP 服务器地址 | `smtp.feishu.cn` |
-| `SMTP_PORT` | SMTP 端口号 | `465` |
-| `SMTP_USER` | 发件人邮箱 | `notice@example.com` |
-| `SMTP_PASSWORD` | SMTP 密码/授权码 | `your_password` |
-| `RECEIVER_EMAIL` | 接收通知的邮箱 | `your_email@example.com` |
+1. 访问"监控任务"页面
+2. 点击"添加任务"
+3. 填写任务名称、URL 和 XPath 选择器
+4. 设置检查间隔并启用
 
----
+### 获取 XPath
 
-## XPath 获取方法
+1. 浏览器打开目标网页
+2. 右键点击要监控的元素 → 检查
+3. 右键高亮代码 → Copy → Copy XPath
 
-1. 在浏览器中打开目标网页
-2. 右键点击要监控的内容 → 检查元素
-3. 在开发者工具中，右键点击选中的元素 → Copy → Copy XPath
+### 配置邮件通知
 
----
+1. 访问"邮件通知配置"页面
+2. 添加 SMTP 配置
+3. 测试连接并启用配置
 
-## 项目结构
+## 📁 项目结构
 
 ```
 WebMonitor/
-├── EarlyScripts/        # 早期脚本版本
-│   ├── main.py         # 早期主程序
-│   ├── outlooknotice.py # 早期邮件模块
-│   └── README.md       # 早期版本说明
-├── frontend/           # React 前端 (开发中)
-├── backend/            # FastAPI 后端 (开发中)
-├── .env                # 环境变量配置
-├── .gitignore          # Git 忽略配置
-├── requirements.txt    # Python 依赖
-└── README.md          # 项目说明文档
+├── backend/            # FastAPI后端
+├── frontend/           # React前端
+├── EarlyScripts/       # 早期Python脚本
+├── requirements.txt    # Python依赖
+└── .env               # 环境变量配置
 ```
 
----
+## ⚠️ 注意事项
 
-## 安全注意事项
+- 使用应用专用密码而非邮箱主密码
+- 监控间隔建议不少于 60 秒
+- 确保 ChromeDriver 版本与 Chrome 浏览器匹配
+- XPath 选择器应选择稳定元素避免动态 ID
 
-- ✅ `.env` 文件已被 `.gitignore` 忽略，不会上传到版本控制
-- ✅ 所有敏感信息都通过环境变量管理
-- ⚠️ 邮箱密码/授权码请使用应用专用密码，避免使用主密码
-- ⚠️ 定期更换邮箱密码和授权码
-- ⚠️ 不要将 `.env` 文件分享或上传到公共平台
+## 📧 常用 SMTP 配置
 
----
-
-## 常见问题
-
-### 1. 如何获取邮箱的 SMTP 配置？
-- **飞书邮箱**：服务器 `smtp.feishu.cn`，端口 `465`
-- **QQ邮箱**：服务器 `smtp.qq.com`，端口 `465`
-- **163邮箱**：服务器 `smtp.163.com`，端口 `465`
-- **Gmail**：服务器 `smtp.gmail.com`，端口 `587`
-
-### 2. 如何获取邮箱授权码？
-大多数邮箱服务需要使用应用专用密码而非登录密码：
-- QQ邮箱：设置 → 账户 → POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务 → 开启服务 → 生成授权码
-- 飞书邮箱：设置 → 邮箱 → SMTP设置 → 生成应用密码
-
-### 3. ChromeDriver 配置
-- 下载与 Chrome 浏览器版本对应的 ChromeDriver
-- 将 chromedriver 添加到系统 PATH 或放在项目目录中
+- **QQ 邮箱**: smtp.qq.com:465
+- **163 邮箱**: smtp.163.com:465
+- **Gmail**: smtp.gmail.com:587
+- **飞书邮箱**: smtp.feishu.cn:465
 
 ---
 
-**使用愉快！如有问题欢迎提交 Issue。**
+🌟 如有问题欢迎提交 Issue 或 Pull Request！

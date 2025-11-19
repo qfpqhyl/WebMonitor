@@ -8,6 +8,7 @@ from typing import List
 from app.db import get_db, create_monitor_task, get_monitor_tasks, get_monitor_task, update_monitor_task, delete_monitor_task, get_monitor_logs, create_email_config, get_email_configs, get_email_config, update_email_config, delete_email_config
 from app.schemas import MonitorTaskCreate, MonitorTaskResponse, MonitorLogResponse, EmailConfigCreate, EmailConfigResponse, EmailConfigUpdate
 from app.services import EmailService
+from app.services.monitor_service import MonitorService
 
 router = APIRouter()
 
@@ -57,9 +58,20 @@ async def test_monitor_task(task_id: int, db: Session = Depends(get_db)):
     if task is None:
         raise HTTPException(status_code=404, detail="监控任务不存在")
 
-    # 这里应该执行一次监控测试
-    # 暂时返回成功状态
-    return {"message": "监控任务测试完成", "status": "success"}
+    # 实际执行监控测试
+    monitor_service = MonitorService()
+    result = await monitor_service.test_task(task_id)
+
+    if not result.get("success"):
+        raise HTTPException(status_code=500, detail=result.get("error", "测试失败"))
+
+    return {
+        "message": "监控任务测试完成",
+        "status": "success",
+        "content": result.get("content"),
+        "title": result.get("title"),
+        "url": result.get("url")
+    }
 
 @router.post("/test-email")
 async def test_email_connection():

@@ -8,7 +8,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import MonitorTasks from './pages/MonitorTasks';
 import MonitorLogs from './pages/MonitorLogs';
-import Settings from './pages/Settings';
+import EmailConfig from './pages/EmailConfig';
 
 // 创建React Query客户端
 const queryClient = new QueryClient({
@@ -55,7 +55,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/tasks" element={<MonitorTasks />} />
               <Route path="/logs" element={<MonitorLogs />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/email-config" element={<EmailConfig />} />
             </Routes>
           </Layout>
         </Router>

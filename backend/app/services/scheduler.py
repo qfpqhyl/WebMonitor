@@ -3,6 +3,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.orm import Session
 from datetime import datetime
 import logging
+import asyncio
 
 from ..db.database import SessionLocal
 from .monitor_service import MonitorService
@@ -47,10 +48,9 @@ class MonitorScheduler:
                     if self.scheduler.get_job(job_id):
                         self.scheduler.remove_job(job_id)
 
-                    # 添加新的定时作业
+                    # 添加新的定时作业 - 包装异步函数调用
                     self.scheduler.add_job(
-                        func=self.monitor_service.check_single_task,
-                        args=[task.id],
+                        func=lambda: asyncio.run(self.monitor_service.check_single_task(task.id)),
                         trigger=IntervalTrigger(seconds=task.interval),
                         id=job_id,
                         name=f"监控任务: {task.name}",
@@ -70,6 +70,8 @@ class MonitorScheduler:
         """启动调度器"""
         try:
             self.scheduler.start()
+            # 立即检查一次活跃任务
+            self._check_active_tasks()
             logger.info("监控调度器启动成功")
         except Exception as e:
             logger.error(f"监控调度器启动失败: {e}")
@@ -90,10 +92,9 @@ class MonitorScheduler:
             if self.scheduler.get_job(job_id):
                 self.scheduler.remove_job(job_id)
 
-            # 添加新的定时作业
+            # 添加新的定时作业 - 包装异步函数调用
             self.scheduler.add_job(
-                func=self.monitor_service.check_single_task,
-                args=[task_id],
+                func=lambda: asyncio.run(self.monitor_service.check_single_task(task_id)),
                 trigger=IntervalTrigger(seconds=interval),
                 id=job_id,
                 name=f"监控任务: {task_id}",

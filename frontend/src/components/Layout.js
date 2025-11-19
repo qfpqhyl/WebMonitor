@@ -42,9 +42,9 @@ const menuItems = [
     path: '/logs',
   },
   {
-    text: '设置',
+    text: '系统设置',
     icon: <SettingsIcon />,
-    path: '/settings',
+    path: '/email-config',
   },
 ];
 

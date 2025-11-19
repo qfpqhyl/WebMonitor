@@ -57,7 +57,8 @@ def create_monitor_log(
     old_content: str = None,
     new_content: str = None,
     is_changed: bool = False,
-    error_message: str = None
+    error_message: str = None,
+    check_time: datetime = None
 ) -> MonitorLog:
     """创建监控日志"""
     db_log = MonitorLog(
@@ -65,7 +66,8 @@ def create_monitor_log(
         old_content=old_content,
         new_content=new_content,
         is_changed=is_changed,
-        error_message=error_message
+        error_message=error_message,
+        check_time=check_time or datetime.now()
     )
     db.add(db_log)
     db.commit()

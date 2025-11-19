@@ -169,7 +169,7 @@ const Settings = () => {
           <Paper sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h6">
-                邮件通知配置
+                系统设置
               </Typography>
               <Button
                 variant="contained"
@@ -181,7 +181,7 @@ const Settings = () => {
             </Box>
 
             <Alert severity="info" sx={{ mb: 2 }}>
-              在这里管理邮件通知配置。系统会使用当前启用的配置发送监控通知。
+              在这里管理系统设置。系统会使用当前启用的配置发送监控通知。
             </Alert>
 
             <TableContainer>
