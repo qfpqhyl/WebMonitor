@@ -27,7 +27,8 @@
 
 ```bash
 # 克隆项目
-git clone <repository-url>
+git clone https://github.com/qfpqhyl/WebMonitor.git
+
 cd WebMonitor
 
 # 安装依赖
