@@ -14,17 +14,30 @@ class EmailService:
     def __init__(self):
         self._config: Optional[EmailConfig] = None
 
-    def get_email_config(self) -> Optional[EmailConfig]:
-        """获取邮件配置，优先从数据库获取，如果数据库没有配置则回退到环境变量"""
-        if self._config is None:
-            db = SessionLocal()
-            try:
-                # 尝试从数据库获取活跃配置
-                self._config = db.query(EmailConfig).filter(EmailConfig.is_active == True).first()
-            finally:
-                db.close()
+    def get_email_config_by_id(self, config_id: int) -> Optional[EmailConfig]:
+        """根据ID获取邮件配置"""
+        db = SessionLocal()
+        try:
+            return db.query(EmailConfig).filter(EmailConfig.id == config_id).first()
+        finally:
+            db.close()
 
-        return self._config
+    def get_email_config(self, user_id: Optional[int] = None) -> Optional[EmailConfig]:
+        """获取邮件配置，优先从数据库获取用户配置，如果数据库没有配置则回退到环境变量"""
+        db = SessionLocal()
+        try:
+            # 如果提供了用户ID，尝试获取用户的邮件配置
+            if user_id:
+                from ..db.crud import get_user_active_email_config
+                user_config = get_user_active_email_config(db, user_id)
+                if user_config:
+                    return user_config
+
+            # 回退到全局邮件配置
+            self._config = db.query(EmailConfig).first()
+            return self._config
+        finally:
+            db.close()
 
     def get_config_from_env(self) -> dict:
         """从环境变量获取配置作为回退选项"""
@@ -44,7 +57,9 @@ class EmailService:
         title: str,
         old_content: str,
         new_content: str,
-        check_time: datetime
+        check_time: datetime,
+        email_config_id: Optional[int] = None,
+        user_id: Optional[int] = None
     ) -> bool:
         """
         发送内容变化通知邮件
@@ -56,11 +71,17 @@ class EmailService:
             old_content: 旧内容
             new_content: 新内容
             check_time: 检查时间
+            email_config_id: 邮箱配置ID（优先使用）
+            user_id: 用户ID（可选，用于获取用户的邮件配置）
 
         Returns:
             bool: 发送是否成功
         """
-        config = self.get_email_config()
+        # 优先使用指定的邮箱配置ID
+        if email_config_id:
+            config = self.get_email_config_by_id(email_config_id)
+        else:
+            config = self.get_email_config(user_id)
 
         if config:
             smtp_server = config.smtp_server

@@ -56,7 +56,7 @@ class MonitorTaskBase(BaseModel):
 
 class MonitorTaskCreate(MonitorTaskBase):
     """创建监控任务"""
-    pass
+    email_config_id: Optional[int] = Field(None, description="邮件配置ID")
 
 class MonitorTaskUpdate(MonitorTaskBase):
     """更新监控任务"""
@@ -65,12 +65,15 @@ class MonitorTaskUpdate(MonitorTaskBase):
     xpath: Optional[str] = None
     interval: Optional[int] = None
     is_active: Optional[bool] = None
+    email_config_id: Optional[int] = None
 
 class MonitorTaskResponse(MonitorTaskBase):
     """监控任务响应"""
     id: int
     last_content: Optional[str] = None
     last_check: Optional[datetime] = None
+    owner_id: int
+    email_config_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
 
@@ -105,7 +108,6 @@ class EmailConfigBase(BaseModel):
     smtp_user: str = Field(..., description="发送者邮箱", min_length=1, max_length=200)
     smtp_password: str = Field(..., description="SMTP密码", min_length=1, max_length=200)
     receiver_email: str = Field(..., description="接收者邮箱", min_length=1, max_length=200)
-    is_active: bool = Field(default=True, description="是否启用")
     is_ssl: bool = Field(default=True, description="是否使用SSL")
 
 class EmailConfigCreate(EmailConfigBase):
@@ -120,12 +122,22 @@ class EmailConfigUpdate(EmailConfigBase):
     smtp_user: Optional[str] = None
     smtp_password: Optional[str] = None
     receiver_email: Optional[str] = None
-    is_active: Optional[bool] = None
     is_ssl: Optional[bool] = None
+
+class EmailConfigSimpleResponse(BaseModel):
+    """邮件配置简单响应（用于选择器）"""
+    id: int
+    name: str
+    smtp_user: str
+    receiver_email: str
+
+    class Config:
+        from_attributes = True
 
 class EmailConfigResponse(EmailConfigBase):
     """邮件配置响应"""
     id: int
+    user_id: int
     created_at: datetime
     updated_at: datetime
 

@@ -8,6 +8,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import MonitorTasks from './pages/MonitorTasks';
 import MonitorLogs from './pages/MonitorLogs';
@@ -56,11 +58,17 @@ function App() {
         <AuthProvider>
           <Router>
             <Routes>
+              {/* 首页 - 不需要认证 */}
+              <Route path="/" element={<HomePage />} />
+
               {/* 登录页面 - 不需要认证 */}
               <Route path="/login" element={<Login />} />
 
+              {/* 注册页面 - 不需要认证 */}
+              <Route path="/register" element={<Register />} />
+
               {/* 仪表板 */}
-              <Route path="/" element={
+              <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Layout><Dashboard /></Layout>
                 </ProtectedRoute>

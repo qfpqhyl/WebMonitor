@@ -33,6 +33,7 @@ class MonitorTask(Base):
     last_content = Column(Text, comment="上次内容")
     last_check = Column(DateTime, comment="上次检查时间")
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, comment="所有者ID")
+    email_config_id = Column(Integer, ForeignKey("email_configs.id"), nullable=True, comment="邮件配置ID")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="创建时间")
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="更新时间")
 
@@ -40,6 +41,8 @@ class MonitorTask(Base):
     logs = relationship("MonitorLog", back_populates="task", cascade="all, delete-orphan")
     # 关联用户
     owner = relationship("User", back_populates="tasks")
+    # 关联邮件配置
+    email_config = relationship("EmailConfig")
 
 class MonitorLog(Base):
     """监控日志模型"""
@@ -67,7 +70,10 @@ class EmailConfig(Base):
     smtp_user = Column(String(200), nullable=False, comment="发送者邮箱")
     smtp_password = Column(String(200), nullable=False, comment="SMTP密码")
     receiver_email = Column(String(200), nullable=False, comment="接收者邮箱")
-    is_active = Column(Boolean, default=True, comment="是否启用")
     is_ssl = Column(Boolean, default=True, comment="是否使用SSL")
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, comment="用户ID")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="创建时间")
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="更新时间")
+
+    # 关联用户
+    user = relationship("User")

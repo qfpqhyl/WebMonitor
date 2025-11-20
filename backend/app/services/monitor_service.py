@@ -123,7 +123,9 @@ class MonitorService:
                         title=title or "未知标题",
                         old_content=old_content or "无历史内容",
                         new_content=current_content,
-                        check_time=check_time
+                        check_time=check_time,
+                        email_config_id=task.email_config_id,
+                        user_id=task.owner_id
                     )
                 except Exception as e:
                     logger.error(f"发送邮件通知失败: {e}")

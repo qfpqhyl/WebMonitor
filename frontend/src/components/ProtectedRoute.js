@@ -26,8 +26,8 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
 
   if (adminOnly && !isAdmin()) {
-    // 重定向到首页（非管理员无权访问）
-    return <Navigate to="/" replace />;
+    // 重定向到dashboard（非管理员无权访问）
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
