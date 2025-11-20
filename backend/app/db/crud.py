@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from datetime import datetime
-from typing import Union, List
+from typing import Union, List, Optional
 from .models import MonitorTask, MonitorLog, EmailConfig, User
 from ..schemas.schemas import MonitorTaskCreate, MonitorTaskUpdate, EmailConfigCreate, EmailConfigUpdate, UserCreate, UserUpdate
 
-def validate_email_config_ownership(db: Session, email_config_id: int, user_id: int) -> bool:
+def validate_email_config_ownership(db: Session, email_config_id: Optional[int], user_id: int) -> bool:
     """验证邮箱配置是否属于指定用户"""
     if email_config_id is None:
         return True  # None值是允许的

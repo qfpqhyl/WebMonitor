@@ -58,14 +58,14 @@ class MonitorTaskCreate(MonitorTaskBase):
     """创建监控任务"""
     email_config_id: Optional[int] = Field(None, description="邮件配置ID")
 
-class MonitorTaskUpdate(MonitorTaskBase):
+class MonitorTaskUpdate(BaseModel):
     """更新监控任务"""
-    name: Optional[str] = None
-    url: Optional[str] = None
-    xpath: Optional[str] = None
-    interval: Optional[int] = None
-    is_active: Optional[bool] = None
-    email_config_id: Optional[int] = None
+    name: Optional[str] = Field(None, description="任务名称", min_length=1, max_length=200)
+    url: Optional[str] = Field(None, description="监控URL", min_length=1, max_length=500)
+    xpath: Optional[str] = Field(None, description="XPath选择器", min_length=1, max_length=500)
+    interval: Optional[int] = Field(None, description="检查间隔（秒）", ge=10)
+    is_active: Optional[bool] = Field(None, description="是否启用")
+    email_config_id: Optional[int] = Field(None, description="邮件配置ID")
 
 class MonitorTaskResponse(MonitorTaskBase):
     """监控任务响应"""

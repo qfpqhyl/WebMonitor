@@ -54,7 +54,7 @@ const MonitorTasks = () => {
     xpath: '',
     interval: 300,
     is_active: true,
-    email_config_id: '',
+    email_config_id: null,
   });
 
   const queryClient = useQueryClient();
@@ -143,7 +143,7 @@ const MonitorTasks = () => {
         xpath: task.xpath,
         interval: task.interval,
         is_active: task.is_active,
-        email_config_id: task.email_config_id || '',
+        email_config_id: task.email_config_id || null,
       });
     } else {
       setEditingTask(null);
@@ -153,7 +153,7 @@ const MonitorTasks = () => {
         xpath: '',
         interval: 300,
         is_active: true,
-        email_config_id: '',
+        email_config_id: null,
       });
     }
     setOpen(true);
@@ -650,8 +650,7 @@ const MonitorTasks = () => {
                   }
                   helperText="用于定位监控内容的XPath表达式"
                   required
-                  multiline
-                  rows={2}
+                  rows={1}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&:hover fieldset': {

@@ -24,11 +24,6 @@ import {
   Card,
   CardContent,
   InputAdornment,
-  Tab,
-  Tabs,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -36,8 +31,6 @@ import {
   Delete as DeleteIcon,
   Send as TestIcon,
   Info as InfoIcon,
-  Help as HelpIcon,
-  ExpandMore as ExpandMoreIcon,
   Mail as MailIcon,
   Security as SecurityIcon,
   CheckCircle as SuccessIcon,
@@ -51,8 +44,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
 
 const EmailConfig = () => {
-  const [currentTab, setCurrentTab] = useState(0);
-  const [openDialog, setOpenDialog] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
   const [editingConfig, setEditingConfig] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -174,10 +166,7 @@ const EmailConfig = () => {
     testConfigMutation.mutate(configId);
   };
 
-  const handleTabChange = (_, newValue) => {
-    setCurrentTab(newValue);
-  };
-
+  
   return (
     <Box>
       {/* Header Section */}
@@ -564,262 +553,6 @@ const EmailConfig = () => {
           </Alert>
         )}
       </Paper>
-
-      {/* 系统信息页面 */}
-      {currentTab === 1 && (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                <InfoIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                系统技术栈
-              </Typography>
-
-              <Box sx={{ '& > *': { mb: 2 } }}>
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">前端技术</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Box sx={{ '& > *': { mb: 1 } }}>
-                      <Typography variant="body2">
-                        <strong>框架:</strong> React 18.2.0
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>UI库:</strong> Material-UI 5.15.0
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>路由:</strong> React Router 6.20.1
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>HTTP客户端:</strong> Axios 1.6.2
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>状态管理:</strong> React Query 3.39.3
-                      </Typography>
-                    </Box>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">后端技术</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Box sx={{ '& > *': { mb: 1 } }}>
-                      <Typography variant="body2">
-                        <strong>Web框架:</strong> FastAPI 0.104.1
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>服务器:</strong> Uvicorn 0.24.0
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>数据库:</strong> SQLite / PostgreSQL
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>ORM:</strong> SQLAlchemy 2.0.23
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>数据验证:</strong> Pydantic 2.5.0
-                      </Typography>
-                    </Box>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">监控与调度</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Box sx={{ '& > *': { mb: 1 } }}>
-                      <Typography variant="body2">
-                        <strong>网页抓取:</strong> Selenium WebDriver 4.15.2
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>任务调度:</strong> APScheduler 3.10.4
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>邮件协议:</strong> SMTP SSL/TLS
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>内容解析:</strong> XPath选择器
-                      </Typography>
-                    </Box>
-                  </AccordionDetails>
-                </Accordion>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                <InfoIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                系统特性
-              </Typography>
-
-              <Box sx={{ '& > *': { mb: 2 } }}>
-                <Alert severity="success">
-                  <Typography variant="subtitle2">实时监控</Typography>
-                  <Typography variant="body2">
-                    支持自定义监控间隔，最小可设置10秒检查一次
-                  </Typography>
-                </Alert>
-
-                <Alert severity="info">
-                  <Typography variant="subtitle2">智能内容检测</Typography>
-                  <Typography variant="body2">
-                    基于XPath精确定位网页元素，自动检测内容变化
-                  </Typography>
-                </Alert>
-
-                <Alert severity="warning">
-                  <Typography variant="subtitle2">多邮件配置</Typography>
-                  <Typography variant="body2">
-                    支持多个邮件服务器配置，灵活切换通知渠道
-                  </Typography>
-                </Alert>
-
-                <Alert severity="error">
-                  <Typography variant="subtitle2">历史记录</Typography>
-                  <Typography variant="body2">
-                    完整的监控日志记录，支持查询历史监控数据
-                  </Typography>
-                </Alert>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      )}
-
-      {/* 使用帮助页面 */}
-      {currentTab === 2 && (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                <HelpIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                快速入门指南
-              </Typography>
-
-              <Box sx={{ '& > *': { mb: 3 } }}>
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">1. 添加监控任务</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" component="div">
-                      <ol>
-                        <li>访问"监控任务"页面</li>
-                        <li>点击"添加任务"按钮</li>
-                        <li>填写任务名称、监控URL</li>
-                        <li>设置XPath选择器来定位要监控的元素</li>
-                        <li>配置检查间隔（建议不少于60秒）</li>
-                        <li>启用监控并保存</li>
-                      </ol>
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">2. 获取XPath选择器</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" component="div">
-                      <strong>Chrome浏览器方法:</strong>
-                      <ol>
-                        <li>打开要监控的网页</li>
-                        <li>右键点击要监控的元素</li>
-                        <li>选择"检查"（Inspect）</li>
-                        <li>在开发者工具中右键高亮的HTML代码</li>
-                        <li>选择"Copy" → "Copy XPath"</li>
-                      </ol>
-                      <Alert severity="info" sx={{ mt: 2 }}>
-                        建议选择具有稳定ID或class的元素，避免使用动态生成的XPath
-                      </Alert>
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">3. 配置邮件通知</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" component="div">
-                      <ol>
-                        <li>在当前页面的"邮件配置"标签中添加SMTP配置</li>
-                        <li>填写SMTP服务器地址和端口</li>
-                        <li>输入发件人和收件人邮箱</li>
-                        <li>建议使用应用专用密码而非主密码</li>
-                        <li>点击"测试连接"验证配置</li>
-                        <li>保存配置</li>
-                      </ol>
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle1">4. 查看监控日志</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" component="div">
-                      <ol>
-                        <li>访问"监控日志"页面</li>
-                        <li>查看所有任务的执行历史</li>
-                        <li>监控成功/失败记录</li>
-                        <li>内容变化检测记录</li>
-                        <li>错误信息和调试信息</li>
-                      </ol>
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                <HelpIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                常见问题
-              </Typography>
-
-              <Box sx={{ '& > *': { mb: 2 } }}>
-                <Alert severity="info">
-                  <Typography variant="subtitle2">Q: 监控不生效怎么办？</Typography>
-                  <Typography variant="body2">
-                    A: 检查任务是否启用，XPath是否正确，网络是否正常
-                  </Typography>
-                </Alert>
-
-                <Alert severity="warning">
-                  <Typography variant="subtitle2">Q: 邮件发送失败？</Typography>
-                  <Typography variant="body2">
-                    A: 验证SMTP配置，检查邮箱密码，确认网络连接
-                  </Typography>
-                </Alert>
-
-                <Alert severity="error">
-                  <Typography variant="subtitle2">Q: XPath如何验证？</Typography>
-                  <Typography variant="body2">
-                    A: 使用浏览器开发者工具Console测试：$x("your_xpath")
-                  </Typography>
-                </Alert>
-
-                <Alert severity="success">
-                  <Typography variant="subtitle2">Q: 监控频率建议？</Typography>
-                  <Typography variant="body2">
-                    A: 建议60秒以上间隔，避免对目标网站造成过大压力
-                  </Typography>
-                </Alert>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      )}
 
       {/* Enhanced Email Configuration Dialog */}
       <Dialog
