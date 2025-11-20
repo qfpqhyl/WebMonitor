@@ -5,45 +5,60 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.db import get_db, create_monitor_task, get_monitor_tasks, get_monitor_task, update_monitor_task, delete_monitor_task, get_monitor_logs, create_email_config, get_email_configs, get_email_config, update_email_config, delete_email_config
-from app.schemas import MonitorTaskCreate, MonitorTaskResponse, MonitorLogResponse, EmailConfigCreate, EmailConfigResponse, EmailConfigUpdate
+from app.db.database import get_db
+from app.db.crud import create_monitor_task, get_monitor_tasks, get_monitor_task, update_monitor_task, delete_monitor_task, get_monitor_logs, create_email_config, get_email_configs, get_email_config, update_email_config, delete_email_config, get_user_monitor_tasks
+from app.schemas.schemas import MonitorTaskCreate, MonitorTaskResponse, MonitorLogResponse, EmailConfigCreate, EmailConfigResponse, EmailConfigUpdate
 from app.services import EmailService
 from app.services.monitor_service import MonitorService
+from app.services.auth_service import get_current_active_user
+from app.db.models import User
 
 router = APIRouter()
 
 @router.post("/monitor-tasks", response_model=MonitorTaskResponse)
-async def create_task(task: MonitorTaskCreate, db: Session = Depends(get_db)):
+async def create_task(task: MonitorTaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """创建监控任务"""
-    return create_monitor_task(db=db, task=task)
+    return create_monitor_task(db=db, task=task, owner_id=current_user.id)
 
 @router.get("/monitor-tasks", response_model=List[MonitorTaskResponse])
-async def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """获取监控任务列表"""
-    return get_monitor_tasks(db=db, skip=skip, limit=limit)
+async def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """获取当前用户的监控任务列表"""
+    return get_user_monitor_tasks(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @router.get("/monitor-tasks/{task_id}", response_model=MonitorTaskResponse)
-async def read_task(task_id: int, db: Session = Depends(get_db)):
+async def read_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """获取单个监控任务"""
     task = get_monitor_task(db=db, task_id=task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="监控任务不存在")
+    if task.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="无权访问此任务")
     return task
 
 @router.put("/monitor-tasks/{task_id}", response_model=MonitorTaskResponse)
-async def update_task(task_id: int, task: MonitorTaskCreate, db: Session = Depends(get_db)):
+async def update_task(task_id: int, task: MonitorTaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """更新监控任务"""
-    updated_task = update_monitor_task(db=db, task_id=task_id, task=task)
-    if updated_task is None:
+    # 首先检查任务是否存在且属于当前用户
+    existing_task = get_monitor_task(db=db, task_id=task_id)
+    if existing_task is None:
         raise HTTPException(status_code=404, detail="监控任务不存在")
+    if existing_task.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="无权访问此任务")
+
+    updated_task = update_monitor_task(db=db, task_id=task_id, task=task)
     return updated_task
 
 @router.delete("/monitor-tasks/{task_id}")
-async def delete_task(task_id: int, db: Session = Depends(get_db)):
+async def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """删除监控任务"""
-    success = delete_monitor_task(db=db, task_id=task_id)
-    if not success:
+    # 首先检查任务是否存在且属于当前用户
+    existing_task = get_monitor_task(db=db, task_id=task_id)
+    if existing_task is None:
         raise HTTPException(status_code=404, detail="监控任务不存在")
+    if existing_task.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="无权访问此任务")
+
+    success = delete_monitor_task(db=db, task_id=task_id)
     return {"message": "监控任务删除成功"}
 
 @router.get("/monitor-tasks/{task_id}/logs", response_model=List[MonitorLogResponse])

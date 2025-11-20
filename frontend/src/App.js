@@ -4,11 +4,15 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import MonitorTasks from './pages/MonitorTasks';
 import MonitorLogs from './pages/MonitorLogs';
 import EmailConfig from './pages/EmailConfig';
+import UserManagement from './pages/UserManagement';
 
 // 创建React Query客户端
 const queryClient = new QueryClient({
@@ -49,16 +53,49 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <Layout>
+        <AuthProvider>
+          <Router>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/tasks" element={<MonitorTasks />} />
-              <Route path="/logs" element={<MonitorLogs />} />
-              <Route path="/email-config" element={<EmailConfig />} />
+              {/* 登录页面 - 不需要认证 */}
+              <Route path="/login" element={<Login />} />
+
+              {/* 仪表板 */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout><Dashboard /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 监控任务 */}
+              <Route path="/tasks" element={
+                <ProtectedRoute>
+                  <Layout><MonitorTasks /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 监控日志 */}
+              <Route path="/logs" element={
+                <ProtectedRoute>
+                  <Layout><MonitorLogs /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 邮件通知配置 */}
+              <Route path="/email-config" element={
+                <ProtectedRoute>
+                  <Layout><EmailConfig /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 用户管理 - 仅管理员 */}
+              <Route path="/user-management" element={
+                <ProtectedRoute adminOnly>
+                  <Layout><UserManagement /></Layout>
+                </ProtectedRoute>
+              } />
             </Routes>
-          </Layout>
-        </Router>
+          </Router>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

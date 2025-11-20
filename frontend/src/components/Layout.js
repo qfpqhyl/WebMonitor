@@ -13,6 +13,10 @@ import {
   Toolbar,
   Typography,
   CssBaseline,
+  Menu,
+  MenuItem,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -20,8 +24,12 @@ import {
   Assignment as TaskIcon,
   History as LogIcon,
   Settings as SettingsIcon,
+  People as PeopleIcon,
+  Logout as LogoutIcon,
+  AccountCircle as AccountIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 const drawerWidth = 240;
 
@@ -50,8 +58,20 @@ const menuItems = [
 
 function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout, isAdmin } = useAuth();
+
+  // 动态生成菜单项（管理员显示用户管理）
+  const dynamicMenuItems = isAdmin() ? [
+    ...menuItems,
+    {
+      text: '用户管理',
+      icon: <PeopleIcon />,
+      path: '/user-management',
+    },
+  ] : menuItems;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -62,6 +82,19 @@ function Layout({ children }) {
     setMobileOpen(false);
   };
 
+  const handleUserMenuClick = (event) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   const drawer = (
     <div>
       <Toolbar>
@@ -70,7 +103,7 @@ function Layout({ children }) {
         </Typography>
       </Toolbar>
       <List>
-        {menuItems.map((item) => (
+        {dynamicMenuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               selected={location.pathname === item.path}
@@ -105,9 +138,60 @@ function Layout({ children }) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {menuItems.find(item => item.path === location.pathname)?.text || 'WebMonitor'}
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {dynamicMenuItems.find(item => item.path === location.pathname)?.text || 'WebMonitor'}
           </Typography>
+
+          {/* 用户菜单 */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title="用户菜单">
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleUserMenuClick}
+                color="inherit"
+              >
+                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+            <Menu
+              id="menu-appbar"
+              anchorEl={userMenuAnchor}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(userMenuAnchor)}
+              onClose={handleUserMenuClose}
+            >
+              <MenuItem onClick={handleUserMenuClose}>
+                <AccountIcon sx={{ mr: 1 }} />
+                {user?.username || '用户'}
+              </MenuItem>
+              <MenuItem onClick={handleUserMenuClose}>
+                <Typography variant="body2" color="text.secondary">
+                  {user?.email || ''}
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={() => { handleUserMenuClose(); navigate('/user-management'); }} sx={{ display: isAdmin() ? 'flex' : 'none' }}>
+                <PeopleIcon sx={{ mr: 1 }} />
+                用户管理
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon sx={{ mr: 1 }} />
+                退出登录
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box

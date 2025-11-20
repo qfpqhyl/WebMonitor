@@ -8,17 +8,77 @@ from fastapi.staticfiles import StaticFiles
 from typing import List
 
 from app.core.config import settings
-from app.db import get_db, engine
-from app.db.models import Base
+from app.db.database import engine, SessionLocal
+from app.db.models import Base, User
 from app.api.routes import router as api_router
-from app.services import monitor_scheduler
+from app.api.auth import router as auth_router
+from app.services.scheduler import monitor_scheduler
+from app.services.auth_service import get_password_hash
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
 
+# 自动创建管理员用户
+def create_default_admin():
+    """如果不存在管理员用户，则创建默认管理员"""
+    db = SessionLocal()
+    try:
+        # 检查是否已存在管理员用户
+        admin_user = db.query(User).filter(User.is_admin == True).first()
+        if admin_user:
+            print(f"✅ 管理员用户已存在: {admin_user.username}")
+            return
+
+        # 创建默认管理员用户
+        default_password = "admin123"  # 默认密码，用户首次登录后应修改
+
+        # 调试信息
+        print(f"🔧 正在创建管理员用户，密码长度: {len(default_password)}")
+
+        # bcrypt限制密码最长72字节，手动截断以防万一
+        if len(default_password) > 72:
+            default_password = default_password[:72]
+            print(f"⚠️ 密码已截断为: {len(default_password)} 字节")
+
+        try:
+            hashed_password = get_password_hash(default_password)
+            print(f"✅ 密码哈希生成成功")
+        except Exception as e:
+            print(f"❌ 密码哈希生成失败: {e}")
+            print(f"错误类型: {type(e)}")
+            raise
+
+        admin_user = User(
+            username="admin",
+            email="admin@webmonitor.com",
+            hashed_password=hashed_password,
+            full_name="系统管理员",
+            is_active=True,
+            is_admin=True
+        )
+
+        db.add(admin_user)
+        db.commit()
+        db.refresh(admin_user)
+
+        print("🔧 已创建默认管理员用户:")
+        print(f"   用户名: admin")
+        print(f"   邮箱: admin@webmonitor.com")
+        print(f"   密码: admin123")
+        print("⚠️  请首次登录后立即修改密码！")
+
+    except Exception as e:
+        print(f"❌ 创建管理员用户失败: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
+    # 创建默认管理员用户
+    create_default_admin()
+
     # 启动监控调度器
     monitor_scheduler.start()
     print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} 启动成功")
@@ -53,6 +113,7 @@ if os.path.exists("static"):
 
 # 注册API路由
 app.include_router(api_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 @app.get("/")
 async def root():

@@ -1,6 +1,50 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from datetime import datetime
+
+class UserBase(BaseModel):
+    """用户基础模型"""
+    username: str = Field(..., description="用户名", min_length=3, max_length=50)
+    email: EmailStr = Field(..., description="邮箱")
+    full_name: Optional[str] = Field(None, description="全名", max_length=100)
+    is_active: bool = Field(default=True, description="是否激活")
+
+class UserCreate(UserBase):
+    """创建用户"""
+    password: str = Field(..., description="密码", min_length=6)
+    is_admin: Optional[bool] = Field(default=False, description="是否管理员")
+
+class UserUpdate(UserBase):
+    """更新用户"""
+    password: Optional[str] = Field(None, description="密码", min_length=6)
+    is_admin: Optional[bool] = None
+
+class UserResponse(UserBase):
+    """用户响应"""
+    id: int
+    is_admin: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    """令牌模型"""
+    access_token: str
+    token_type: str = "bearer"
+
+class LoginResponse(BaseModel):
+    """登录响应模型"""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+class TokenData(BaseModel):
+    """令牌数据"""
+    username: Optional[str] = None
+    user_id: Optional[int] = None
+    is_admin: Optional[bool] = False
 
 class MonitorTaskBase(BaseModel):
     """监控任务基础模型"""

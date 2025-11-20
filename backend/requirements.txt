@@ -13,3 +13,4 @@ python-dotenv==1.0.0
 selenium==4.15.2
 lxml==4.9.3
 apscheduler==3.10.4
+email-validator==2.1.0

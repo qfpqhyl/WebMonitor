@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FILE: str = "logs/app.log"
 
+    # JWT设置
+    SECRET_KEY: str = "your-secret-key-here-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     class Config:
         env_file = ".env"
         case_sensitive = True
@@ -47,3 +52,7 @@ class Settings(BaseSettings):
 
 # 创建全局设置实例
 settings = Settings()
+
+def get_settings():
+    """获取设置实例"""
+    return settings

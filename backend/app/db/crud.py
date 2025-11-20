@@ -2,17 +2,18 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from datetime import datetime
 from typing import Union, List
-from .models import MonitorTask, MonitorLog, EmailConfig
-from ..schemas import MonitorTaskCreate, MonitorTaskUpdate, EmailConfigCreate, EmailConfigUpdate
+from .models import MonitorTask, MonitorLog, EmailConfig, User
+from ..schemas.schemas import MonitorTaskCreate, MonitorTaskUpdate, EmailConfigCreate, EmailConfigUpdate, UserCreate, UserUpdate
 
-def create_monitor_task(db: Session, task: MonitorTaskCreate) -> MonitorTask:
+def create_monitor_task(db: Session, task: MonitorTaskCreate, owner_id: int) -> MonitorTask:
     """创建监控任务"""
     db_task = MonitorTask(
         name=task.name,
         url=task.url,
         xpath=task.xpath,
         interval=task.interval,
-        is_active=task.is_active
+        is_active=task.is_active,
+        owner_id=owner_id
     )
     db.add(db_task)
     db.commit()
@@ -153,3 +154,71 @@ def delete_email_config(db: Session, config_id: int) -> bool:
     db.delete(db_config)
     db.commit()
     return True
+
+# 用户相关CRUD操作
+def create_user(db: Session, user: UserCreate) -> User:
+    """创建用户"""
+    from ..services.auth_service import get_password_hash
+    hashed_password = get_password_hash(user.password)
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password,
+        full_name=user.full_name,
+        is_active=user.is_active,
+        is_admin=user.is_admin
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
+    """获取用户列表"""
+    return db.query(User).offset(skip).limit(limit).all()
+
+def get_user(db: Session, user_id: int) -> Union[User, None]:
+    """获取单个用户"""
+    return db.query(User).filter(User.id == user_id).first()
+
+def get_user_by_username(db: Session, username: str) -> Union[User, None]:
+    """根据用户名获取用户"""
+    return db.query(User).filter(User.username == username).first()
+
+def get_user_by_email(db: Session, email: str) -> Union[User, None]:
+    """根据邮箱获取用户"""
+    return db.query(User).filter(User.email == email).first()
+
+def update_user(db: Session, user_id: int, user: UserUpdate) -> Union[User, None]:
+    """更新用户"""
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        return None
+
+    update_data = user.model_dump(exclude_unset=True)
+
+    # 如果更新密码，需要哈希处理
+    if "password" in update_data:
+        from ..services.auth_service import get_password_hash
+        update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
+
+    for field, value in update_data.items():
+        setattr(db_user, field, value)
+
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def delete_user(db: Session, user_id: int) -> bool:
+    """删除用户"""
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        return False
+
+    db.delete(db_user)
+    db.commit()
+    return True
+
+def get_user_monitor_tasks(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[MonitorTask]:
+    """获取用户的监控任务列表"""
+    return db.query(MonitorTask).filter(MonitorTask.owner_id == user_id).offset(skip).limit(limit).all()

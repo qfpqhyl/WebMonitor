@@ -42,14 +42,12 @@ npm install
 ### 3. 启动服务
 
 ```bash
-# 启动后端
+# 启动后端 (首次启动会自动创建管理员账户)
 cd backend
-pip install -r backend/requirements.txt
 python main.py
 
 # 启动前端 (新终端)
 cd frontend
-npm install
 npm start
 ```
 
@@ -58,6 +56,12 @@ npm start
 - 前端界面: http://localhost:3000
 - 后端 API: http://localhost:8000
 - API 文档: http://localhost:8000/docs
+
+#### 默认管理员账户
+- 用户名: `admin`
+- 密码: `admin123`
+
+**⚠️ 安全提醒**: 首次登录后请立即修改默认密码！
 
 ## 📖 使用指南
 
@@ -79,6 +83,13 @@ npm start
 1. 访问"邮件通知配置"页面
 2. 添加 SMTP 配置
 3. 测试连接并启用配置
+
+### 用户管理 (管理员功能)
+
+1. 使用管理员账户登录
+2. 点击右上角用户头像 → "用户管理"
+3. 添加、编辑或删除用户账户
+4. 设置用户角色和权限
 
 ## 📁 项目结构
 
@@ -103,6 +114,24 @@ WebMonitor/
 - **163 邮箱**: smtp.163.com:465
 - **Gmail**: smtp.gmail.com:587
 - **飞书邮箱**: smtp.feishu.cn:465
+
+## 📄 许可证
+
+本项目采用 **Creative Commons Attribution-NonCommercial 4.0 International License** 许可证。
+
+这意味着您可以：
+
+- ✅ **共享** — 以任何媒介或格式复制和重新分发本软件
+- ✅ **改编** — 修改、转换和基于本软件进行创作
+
+但需遵守以下条件：
+
+- 📝 **署名** — 您必须提供适当的署名，提供许可证链接，并说明是否进行了更改
+- 🚫 **非商业性使用** — 您不得将本软件用于商业目的
+
+**禁止商业用途**：未经版权持有人明确许可，不得将本软件或其修改版本用于任何商业目的。
+
+详细许可证信息请查看：[LICENSE](./LICENSE) 文件
 
 ---
 
