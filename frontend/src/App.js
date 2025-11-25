@@ -15,6 +15,9 @@ import MonitorTasks from './pages/MonitorTasks';
 import MonitorLogs from './pages/MonitorLogs';
 import EmailConfig from './pages/EmailConfig';
 import UserManagement from './pages/UserManagement';
+import BlacklistManagement from './pages/BlacklistManagement';
+import PublicTasks from './pages/PublicTasks';
+import MySubscriptions from './pages/MySubscriptions';
 
 // 创建React Query客户端
 const queryClient = new QueryClient({
@@ -39,14 +42,150 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
+      '"Source Serif Pro"',
+      '"Noto Serif SC"',
+      'Georgia',
+      '"Times New Roman"',
+      '"SimSun"', // 宋体
+      'serif',
     ].join(','),
+    h1: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 700,
+    },
+    h2: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 600,
+    },
+    h3: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 600,
+    },
+    h4: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 600,
+    },
+    h5: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 600,
+    },
+    h6: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 600,
+    },
+    body1: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    body2: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    subtitle1: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    subtitle2: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    caption: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    overline: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+    },
+    button: {
+      fontFamily: [
+        '"Source Serif Pro"',
+        '"Noto Serif SC"',
+        'Georgia',
+        '"Times New Roman"',
+        '"SimSun"',
+        'serif',
+      ].join(','),
+      fontWeight: 500,
+    },
   },
 });
 
@@ -92,6 +231,27 @@ function App() {
               <Route path="/email-config" element={
                 <ProtectedRoute>
                   <Layout><EmailConfig /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 公开任务市场 */}
+              <Route path="/public-tasks" element={
+                <ProtectedRoute>
+                  <Layout><PublicTasks /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 我的订阅 */}
+              <Route path="/my-subscriptions" element={
+                <ProtectedRoute>
+                  <Layout><MySubscriptions /></Layout>
+                </ProtectedRoute>
+              } />
+
+              {/* 黑名单管理 - 仅管理员 */}
+              <Route path="/blacklist-management" element={
+                <ProtectedRoute adminOnly>
+                  <Layout><BlacklistManagement /></Layout>
                 </ProtectedRoute>
               } />
 

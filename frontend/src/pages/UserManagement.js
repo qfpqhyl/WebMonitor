@@ -55,6 +55,7 @@ const UserManagement = () => {
     password: '',
     is_active: true,
     is_admin: false,
+    max_subscriptions: 10,
   });
 
   const queryClient = useQueryClient();
@@ -102,6 +103,9 @@ const UserManagement = () => {
         queryClient.invalidateQueries('users');
         handleClose();
       },
+      onError: (error) => {
+        console.error('Update user error:', error.response?.data || error.message);
+      },
     }
   );
 
@@ -127,6 +131,7 @@ const UserManagement = () => {
         password: '',
         is_active: user.is_active,
         is_admin: user.is_admin,
+        max_subscriptions: user.max_subscriptions || 10,
       });
     } else {
       setEditingUser(null);
@@ -137,6 +142,7 @@ const UserManagement = () => {
         password: '',
         is_active: true,
         is_admin: false,
+        max_subscriptions: 10,
       });
     }
     setOpen(true);
@@ -144,13 +150,36 @@ const UserManagement = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setEditingUser(null);
+    // 延迟清除编辑状态，避免可访问性问题
+    setTimeout(() => {
+      setEditingUser(null);
+    }, 100);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 清理表单数据，移除空字符串和未更改的值
+    const cleanFormData = { ...formData };
+
+    // 如果是编辑模式且密码为空或null，则不发送密码字段
+    if (editingUser && (!cleanFormData.password || cleanFormData.password === '')) {
+      delete cleanFormData.password;
+    }
+
+    // 移除所有null和undefined值，只保留有意义的值
+    Object.keys(cleanFormData).forEach(key => {
+      if (cleanFormData[key] === null || cleanFormData[key] === undefined || cleanFormData[key] === '') {
+        if (key !== 'password') { // 密码字段已经在上面处理
+          delete cleanFormData[key];
+        }
+      }
+    });
+
+    console.log('Submitting user update:', cleanFormData);
+
     if (editingUser) {
-      updateMutation.mutate({ id: editingUser.id, userData: formData });
+      updateMutation.mutate({ id: editingUser.id, userData: cleanFormData });
     } else {
       createMutation.mutate(formData);
     }
@@ -422,6 +451,7 @@ const UserManagement = () => {
                   <TableCell sx={{ fontWeight: 600 }}>用户信息</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>邮箱地址</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>角色权限</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>订阅限制</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>账户状态</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
                 </TableRow>
@@ -479,6 +509,14 @@ const UserManagement = () => {
                     <TableCell>
                       <Chip
                         size="small"
+                        label={`${user.max_subscriptions || 10} 个`}
+                        color="info"
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
                         icon={user.is_active ? <SuccessIcon /> : <ErrorIcon />}
                         label={user.is_active ? '启用' : '禁用'}
                         color={user.is_active ? 'success' : 'error'}
@@ -527,6 +565,7 @@ const UserManagement = () => {
         onClose={handleClose}
         maxWidth="md"
         fullWidth
+        disableEnforceFocus
         PaperProps={{
           sx: {
             borderRadius: 4,
@@ -679,6 +718,28 @@ const UserManagement = () => {
                       </InputAdornment>
                     ),
                   }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(167, 139, 250, 0.5)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#a78bfa',
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="最大订阅数量"
+                  type="number"
+                  fullWidth
+                  value={formData.max_subscriptions}
+                  onChange={(e) => setFormData({ ...formData, max_subscriptions: parseInt(e.target.value) || 10 })}
+                  inputProps={{ min: 1, max: 100 }}
+                  helperText="该用户最多可以订阅的公开任务数量"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&:hover fieldset': {

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -14,11 +14,14 @@ class User(Base):
     full_name = Column(String(100), comment="全名")
     is_active = Column(Boolean, default=True, comment="是否激活")
     is_admin = Column(Boolean, default=False, comment="是否管理员")
+    max_subscriptions = Column(Integer, default=10, comment="最大订阅任务数量")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="创建时间")
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="更新时间")
 
     # 关联监控任务
     tasks = relationship("MonitorTask", back_populates="owner", cascade="all, delete-orphan")
+    # 关联订阅记录
+    subscriptions = relationship("TaskSubscription", back_populates="user", cascade="all, delete-orphan")
 
 class MonitorTask(Base):
     """监控任务模型"""
@@ -30,6 +33,8 @@ class MonitorTask(Base):
     xpath = Column(String(500), nullable=False, comment="XPath选择器")
     interval = Column(Integer, default=300, comment="检查间隔（秒）")
     is_active = Column(Boolean, default=True, comment="是否启用")
+    is_public = Column(Boolean, default=False, comment="是否公开")
+    description = Column(Text, comment="任务描述")
     last_content = Column(Text, comment="上次内容")
     last_check = Column(DateTime, comment="上次检查时间")
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, comment="所有者ID")
@@ -43,6 +48,8 @@ class MonitorTask(Base):
     owner = relationship("User", back_populates="tasks")
     # 关联邮件配置
     email_config = relationship("EmailConfig")
+    # 关联订阅记录
+    subscriptions = relationship("TaskSubscription", back_populates="task", cascade="all, delete-orphan")
 
 class MonitorLog(Base):
     """监控日志模型"""
@@ -77,3 +84,40 @@ class EmailConfig(Base):
 
     # 关联用户
     user = relationship("User")
+
+class BlacklistDomain(Base):
+    """黑名单域名模型"""
+    __tablename__ = "blacklist_domains"
+
+    id = Column(Integer, primary_key=True, index=True)
+    domain = Column(String(500), nullable=False, unique=True, index=True, comment="黑名单域名")
+    description = Column(Text, comment="描述")
+    is_active = Column(Boolean, default=True, comment="是否启用")
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=False, comment="创建者ID")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="创建时间")
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="更新时间")
+
+    # 关联创建者
+    creator = relationship("User")
+
+
+class TaskSubscription(Base):
+    """任务订阅模型"""
+    __tablename__ = "task_subscriptions"
+
+    __table_args__ = (UniqueConstraint('user_id', 'task_id', name='unique_user_task_subscription'),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, comment="订阅用户ID")
+    task_id = Column(Integer, ForeignKey("monitor_tasks.id"), nullable=False, comment="订阅任务ID")
+    is_active = Column(Boolean, default=True, comment="是否启用订阅")
+    email_config_id = Column(Integer, ForeignKey("email_configs.id"), nullable=True, comment="通知邮件配置ID")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="订阅时间")
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="更新时间")
+
+    # 关联用户
+    user = relationship("User", back_populates="subscriptions")
+    # 关联任务
+    task = relationship("MonitorTask", back_populates="subscriptions")
+    # 关联邮件配置
+    email_config = relationship("EmailConfig")

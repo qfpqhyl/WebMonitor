@@ -115,7 +115,7 @@ class MonitorService:
             if is_changed:
                 logger.info(f"任务 {task.name} 检测到内容变化")
 
-                # 发送邮件通知
+                # 发送邮件通知给任务所有者
                 try:
                     await self.email_service.send_change_notification(
                         task_name=task.name,
@@ -128,7 +128,11 @@ class MonitorService:
                         user_id=task.owner_id
                     )
                 except Exception as e:
-                    logger.error(f"发送邮件通知失败: {e}")
+                    logger.error(f"发送任务所有者邮件通知失败: {e}")
+
+                # 如果是公开任务，发送通知给所有订阅者
+                if task.is_public:
+                    await self._notify_subscribers(task, title, current_content, old_content, check_time)
 
             # 更新任务内容
             update_monitor_task_content(db, task_id, current_content, check_time)
@@ -207,3 +211,49 @@ class MonitorService:
 
         finally:
             db.close()
+
+    async def _notify_subscribers(self, task, title: str, new_content: str, old_content: str, check_time: datetime):
+        """
+        向订阅者发送变更通知
+
+        Args:
+            task: 监控任务对象
+            title: 网页标题
+            new_content: 新内容
+            old_content: 旧内容
+            check_time: 检查时间
+        """
+        try:
+            from ..db.crud import get_task_subscriptions
+            from ..db.models import TaskSubscription
+
+            # 获取所有活跃的订阅
+            subscriptions = get_task_subscriptions(db=SessionLocal(), task_id=task.id)
+
+            logger.info(f"任务 {task.name} 有 {len(subscriptions)} 个订阅者需要通知")
+
+            for subscription in subscriptions:
+                try:
+                    # 使用订阅者的邮件配置，如果没有则使用默认配置
+                    email_config_id = subscription.email_config_id
+
+                    await self.email_service.send_change_notification(
+                        task_name=f"[订阅] {task.name}",
+                        url=task.url,
+                        title=title or "未知标题",
+                        old_content=old_content or "无历史内容",
+                        new_content=new_content,
+                        check_time=check_time,
+                        email_config_id=email_config_id,
+                        user_id=subscription.user_id,
+                        is_subscription=True
+                    )
+
+                    logger.info(f"已向订阅者 {subscription.user_id} 发送通知")
+
+                except Exception as e:
+                    logger.error(f"向订阅者 {subscription.user_id} 发送通知失败: {e}")
+                    continue  # 继续向其他订阅者发送
+
+        except Exception as e:
+            logger.error(f"获取订阅者列表失败: {e}")

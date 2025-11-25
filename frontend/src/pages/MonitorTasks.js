@@ -28,6 +28,7 @@ import {
   Tooltip,
   Card,
   CardContent,
+  alpha,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -44,8 +45,10 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 const MonitorTasks = () => {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [formData, setFormData] = useState({
@@ -54,6 +57,8 @@ const MonitorTasks = () => {
     xpath: '',
     interval: 300,
     is_active: true,
+    is_public: false,
+    description: '',
     email_config_id: null,
   });
 
@@ -82,7 +87,22 @@ const MonitorTasks = () => {
     'emailConfigs',
     async () => {
       const response = await axios.get('/api/email-configs/simple-list');
+      console.log('Email configs received:', response.data);
       return response.data;
+    },
+    {
+      onError: (error) => {
+        console.error('Failed to fetch email configs:', error);
+      },
+      onSuccess: (data) => {
+        // 如果用户只有一个邮箱配置且当前没有选择配置，自动选择它
+        if (data.length === 1 && !formData.email_config_id && !editingTask) {
+          setFormData(prev => ({
+            ...prev,
+            email_config_id: data[0].id
+          }));
+        }
+      }
     }
   );
 
@@ -97,6 +117,27 @@ const MonitorTasks = () => {
         queryClient.invalidateQueries('monitor-tasks');
         handleClose();
       },
+      onError: (error) => {
+        console.error('Create task error:', error);
+
+        // 特殊处理黑名单错误
+        if (error.response?.status === 403 && error.response?.data?.detail?.includes('黑名单')) {
+          alert('⚠️ 黑名单限制\n\n该域名在管理员设置的黑名单中，普通用户无法监控此网站。\n\n如需监控此网站，请联系管理员将其从黑名单中移除。');
+        } else {
+          const errorDetail = error.response?.data?.detail;
+          let errorMessage = '未知错误';
+
+          if (typeof errorDetail === 'string') {
+            errorMessage = errorDetail;
+          } else if (typeof errorDetail === 'object') {
+            errorMessage = JSON.stringify(errorDetail);
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          alert('创建监控任务失败: ' + errorMessage);
+        }
+      },
     }
   );
 
@@ -110,6 +151,27 @@ const MonitorTasks = () => {
       onSuccess: () => {
         queryClient.invalidateQueries('monitor-tasks');
         handleClose();
+      },
+      onError: (error) => {
+        console.error('Update task error:', error);
+
+        // 特殊处理黑名单错误
+        if (error.response?.status === 403 && error.response?.data?.detail?.includes('黑名单')) {
+          alert('⚠️ 黑名单限制\n\n该域名在管理员设置的黑名单中，普通用户无法监控此网站。\n\n如需监控此网站，请联系管理员将其从黑名单中移除。');
+        } else {
+          const errorDetail = error.response?.data?.detail;
+          let errorMessage = '未知错误';
+
+          if (typeof errorDetail === 'string') {
+            errorMessage = errorDetail;
+          } else if (typeof errorDetail === 'object') {
+            errorMessage = JSON.stringify(errorDetail);
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          alert('更新监控任务失败: ' + errorMessage);
+        }
       },
     }
   );
@@ -143,6 +205,8 @@ const MonitorTasks = () => {
         xpath: task.xpath,
         interval: task.interval,
         is_active: task.is_active,
+        is_public: task.is_public || false,
+        description: task.description || '',
         email_config_id: task.email_config_id || null,
       });
     } else {
@@ -153,6 +217,8 @@ const MonitorTasks = () => {
         xpath: '',
         interval: 300,
         is_active: true,
+        is_public: false,
+        description: '',
         email_config_id: null,
       });
     }
@@ -166,6 +232,13 @@ const MonitorTasks = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 验证邮箱配置
+    if (!formData.email_config_id) {
+      alert('请选择邮件配置后再创建任务。如果您还没有配置邮箱，请先在"邮件通知配置"页面添加邮箱配置。');
+      return;
+    }
+
     if (editingTask) {
       updateMutation.mutate({ id: editingTask.id, taskData: formData });
     } else {
@@ -245,6 +318,29 @@ const MonitorTasks = () => {
           创建新任务
         </Button>
       </Box>
+
+      {/* 黑名单说明卡片 - 仅对普通用户显示 */}
+      {!user?.is_admin && (
+        <Card sx={{ mb: 4, backgroundColor: alpha('#ef4444', 0.04), border: `1px solid ${alpha('#ef4444', 0.12)}` }}>
+          <CardContent sx={{ py: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+              <MonitorIcon sx={{ fontSize: 20, color: '#ef4444' }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#ef4444' }}>
+                黑名单限制说明
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+              • 普通用户无法监控黑名单中禁止的网站域名
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+              • 如需监控被限制的网站，请联系管理员将域名从黑名单中移除
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+              • 管理员可访问"黑名单管理"功能进行域名管理
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -691,8 +787,8 @@ const MonitorTasks = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="email-config-label">邮箱配置</InputLabel>
+                <FormControl fullWidth required>
+                  <InputLabel id="email-config-label">邮箱配置 *</InputLabel>
                   <Select
                     labelId="email-config-label"
                     value={formData.email_config_id}
@@ -702,6 +798,7 @@ const MonitorTasks = () => {
                         email_config_id: e.target.value,
                       })
                     }
+                    required
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&:hover fieldset': {
@@ -714,16 +811,77 @@ const MonitorTasks = () => {
                       },
                     }}
                   >
-                    <MenuItem value="">
-                      <em>不使用邮件通知</em>
-                    </MenuItem>
-                    {emailConfigs.map((config) => (
-                      <MenuItem key={config.id} value={config.id}>
-                        {config.name} ({config.smtp_user} → {config.receiver_email})
+                    {emailConfigs.length === 0 ? (
+                      <MenuItem disabled value="">
+                        <em>暂无邮箱配置，请先添加邮件配置</em>
                       </MenuItem>
-                    ))}
+                    ) : (
+                      emailConfigs.map((config) => (
+                        <MenuItem key={config.id} value={config.id}>
+                          {config.name} ({config.smtp_user} → {config.receiver_email})
+                        </MenuItem>
+                      ))
+                    )}
                   </Select>
+                  {emailConfigs.length === 0 && (
+                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                      请先在"邮件通知配置"页面添加邮箱配置
+                    </Typography>
+                  )}
                 </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="任务描述"
+                  fullWidth
+                  multiline
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  helperText="可选的任务描述，公开任务时其他用户可以看到此描述"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(16, 185, 129, 0.5)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
+                  <Switch
+                    checked={formData.is_public}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        is_public: e.target.checked,
+                      })
+                    }
+                    sx={{
+                      '& .MuiSwitch-thumb': {
+                        backgroundColor: formData.is_public ? '#3b82f6' : 'default',
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: formData.is_public ? 'rgba(59, 130, 246, 0.5)' : 'default',
+                      },
+                    }}
+                  />
+                  <Box sx={{ ml: 2 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      公开任务
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      公开后其他用户可以订阅此任务并收到变更通知
+                    </Typography>
+                  </Box>
+                </Box>
               </Grid>
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>

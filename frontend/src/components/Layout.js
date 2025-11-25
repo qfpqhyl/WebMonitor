@@ -32,6 +32,9 @@ import {
   Monitor as MonitorIcon,
   NotificationsActive as NotificationsIcon,
   Mail as MailIcon,
+  Security as SecurityIcon,
+  Public as PublicIcon,
+  BookmarkBorder as SubscriptionsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -49,6 +52,18 @@ const menuItems = [
     icon: <TaskIcon />,
     path: '/tasks',
     description: '管理任务',
+  },
+  {
+    text: '公开任务',
+    icon: <PublicIcon />,
+    path: '/public-tasks',
+    description: '任务市场',
+  },
+  {
+    text: '我的订阅',
+    icon: <SubscriptionsIcon />,
+    path: '/my-subscriptions',
+    description: '订阅管理',
   },
   {
     text: '监控日志',
@@ -71,9 +86,15 @@ function Layout({ children }) {
   const location = useLocation();
   const { user, logout, isAdmin } = useAuth();
 
-  // 动态生成菜单项（管理员显示用户管理）
+  // 动态生成菜单项（管理员显示用户管理和黑名单管理）
   const dynamicMenuItems = isAdmin() ? [
     ...menuItems,
+    {
+      text: '黑名单管理',
+      icon: <SecurityIcon />,
+      path: '/blacklist-management',
+      description: '域名黑名单',
+    },
     {
       text: '用户管理',
       icon: <PeopleIcon />,

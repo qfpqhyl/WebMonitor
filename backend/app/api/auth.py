@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import timedelta
+from pydantic import ValidationError
 
 from app.db.database import get_db
 from app.db.crud import create_user, get_users, get_user, update_user, delete_user, get_user_by_username, get_user_by_email
@@ -77,10 +78,22 @@ async def update_user_info(
     db: Session = Depends(get_db)
 ):
     """更新用户信息 (仅管理员)"""
-    user = update_user(db, user_id, user_update)
-    if user is None:
-        raise HTTPException(status_code=404, detail="用户不存在")
-    return user
+    # 添加调试日志
+    print(f"Received update data: {user_update.model_dump()}")
+
+    try:
+        user = update_user(db, user_id, user_update)
+        if user is None:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except ValidationError as e:
+        print(f"Validation error: {e}")
+        raise HTTPException(status_code=422, detail=f"数据验证失败: {str(e)}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail=f"服务器内部错误: {str(e)}")
 
 @router.delete("/users/{user_id}")
 async def delete_user_account(
