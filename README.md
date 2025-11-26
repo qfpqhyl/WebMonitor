@@ -1,5 +1,11 @@
 # WebMonitor
 
+<h3 align="center">🚀 智能网页内容监控与实时通知平台</h3>
+
+<p align="center">
+  <strong>现代化</strong> • <strong>高可用</strong> • <strong>易部署</strong>
+</p>
+
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-green.svg" alt="License">
@@ -11,13 +17,6 @@
 <p align="center">
   <img src="./image/样例图片.png" alt="WebMonitor Dashboard" width="800">
 </p>
-
-<h3 align="center">🚀 智能网页内容监控与实时通知平台</h3>
-
-<p align="center">
-  <strong>现代化</strong> • <strong>高可用</strong> • <strong>易部署</strong>
-</p>
-
 ---
 
 ## 📖 关于项目
