@@ -1,138 +1,291 @@
-# WebMonitor - 网页内容变动监控通知系统
+# WebMonitor
 
-现代化的网页内容监控平台，支持实时监控网页内容变化并通过邮件发送通知。
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/python-3.9+-yellow.svg" alt="Python">
+  <img src="https://img.shields.io/badge/react-18+-blue.svg" alt="React">
+  <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker">
+</p>
 
-![](./image/样例图片.png)
+<p align="center">
+  <img src="./image/样例图片.png" alt="WebMonitor Dashboard" width="800">
+</p>
 
-## 🚀 功能特性
+<h3 align="center">🚀 智能网页内容监控与实时通知平台</h3>
 
-- **实时监控**: 支持多个网页同时监控，自定义检查间隔
-- **精准定位**: 基于 XPath 精确定位要监控的内容
-- **智能检测**: 自动检测网页内容变化，支持动态网页
-- **邮件通知**: 配置 SMTP 邮件服务器，内容变化时自动发送通知
-- **可视化管理**: 现代化 Web 界面，直观管理监控任务
-- **历史记录**: 完整的监控日志记录和查询
+<p align="center">
+  <strong>现代化</strong> • <strong>高可用</strong> • <strong>易部署</strong>
+</p>
 
-## 🏗️ 技术架构
+---
 
-- **前端**: React 18 + Material-UI + React Query
-- **后端**: FastAPI + SQLAlchemy + APScheduler
-- **监控引擎**: Selenium WebDriver
-- **数据库**: SQLite (可扩展至 PostgreSQL)
-- **邮件服务**: SMTP SSL/TLS
+## 📖 关于项目
+
+WebMonitor 是一个企业级的网页内容变化监控平台，采用现代化微服务架构设计，提供实时监控、智能分析和多渠道通知能力。
+
+### ✨ 核心特性
+
+- 🎯 **精准监控** - 基于 XPath 的精确内容定位
+- 🔄 **实时检测** - 毫秒级内容变化识别
+- 📧 **智能通知** - 多渠道邮件通知系统
+- 👥 **企业级管理** - 完整的用户权限与角色管理
+- 🔒 **安全可靠** - JWT 认证与数据加密
+- 🐳 **容器化部署** - 一键 Docker 部署
+- 📊 **可视化面板** - 现代化 React 管理界面
+- ⚡ **高性能** - 支持大规模并发监控任务
+
+## 🏗️ 技术栈
+
+```mermaid
+graph LR
+    A[Frontend] --> B[React 18]
+    A --> C[Material-UI]
+    A --> D[React Query]
+
+    E[Backend] --> F[FastAPI]
+    E --> G[SQLAlchemy]
+    E --> H[APScheduler]
+
+    I[Infrastructure] --> J[Docker]
+    I --> K[SQLite/PostgreSQL]
+    I --> L[Selenium]
+
+    M[Security] --> N[JWT Auth]
+    M --> O[Bcrypt]
+```
 
 ## 🚀 快速开始
 
-### 1. 环境准备
+### 🐳 Docker 部署 (推荐)
 
 ```bash
 # 克隆项目
 git clone https://github.com/qfpqhyl/WebMonitor.git
-
 cd WebMonitor
+
+# 一键启动
+docker-compose up -d
+
+# 访问应用
+open http://localhost:3000
 ```
 
-### 2. 安装前端依赖
+### 💻 本地开发
 
 ```bash
-cd frontend
-npm install
+# 环境准备
+git clone https://github.com/qfpqhyl/WebMonitor.git
+cd WebMonitor
+
+# 后端服务
+cd backend && pip install -r requirements.txt && python main.py
+
+# 前端服务
+cd frontend && npm install && npm start
 ```
 
-### 3. 启动服务
+## 📋 系统要求
+
+| 组件 | 最低要求 | 推荐配置 |
+|------|----------|----------|
+| Python | 3.9+ | 3.11+ |
+| Node.js | 16+ | 18+ |
+| 内存 | 2GB | 4GB+ |
+| 存储 | 1GB | 5GB+ |
+| Docker | 20.10+ | Latest |
+
+## 🔧 配置说明
+
+创建 `.env` 文件进行自定义配置：
 
 ```bash
-# 启动后端 (首次启动会自动创建管理员账户)
-cd backend
-python main.py
+# 核心配置
+SECRET_KEY=your-secure-secret-key
+DEBUG=false
+DATABASE_URL=sqlite:///./data/webmonitor.db
 
-# 启动前端 (新终端)
-cd frontend
-npm start
+# 邮件通知
+SMTP_SERVER=smtp.example.com
+SMTP_PORT=465
+SMTP_USER=your-email@example.com
+SMTP_PASSWORD=your-password
+
+# 监控设置
+DEFAULT_CHECK_INTERVAL=300
+SELENIUM_HEADLESS=true
 ```
 
-### 4. 访问应用
+## 📊 功能模块
 
-- 前端界面: http://localhost:3000
-- 后端 API: http://localhost:8000
-- API 文档: http://localhost:8000/docs
+### 监控任务管理
+- 多任务并发监控
+- 自定义监控间隔
+- XPath 精确定位
+- 任务状态管理
 
-#### 默认管理员账户
-- 用户名: `admin`
-- 密码: `admin123`
+### 用户权限系统
+- 基于角色的访问控制 (RBAC)
+- JWT 安全认证
+- 用户活动审计
 
-**⚠️ 安全提醒**: 首次登录后请立即修改默认密码！
+### 通知系统
+- 多 SMTP 服务器支持
+- 邮件模板自定义
+- 通知规则配置
 
-## 📖 使用指南
+### 数据分析
+- 监控历史记录
+- 变化趋势分析
+- 性能指标监控
 
-### 添加监控任务
+## 🎯 使用场景
 
-1. 访问"监控任务"页面
-2. 点击"添加任务"
-3. 填写任务名称、URL 和 XPath 选择器
-4. 设置检查间隔并启用
+- **竞品监控** - 实时跟踪竞争对手动态
+- **价格监控** - 电商价格变动提醒
+- **内容更新** - 新闻资讯、公告更新
+- **网站监控** - 服务可用性检查
+- **SEO 监控** - 搜索引擎排名变化
 
-### 获取 XPath
+## 🛠️ API 文档
 
-1. 浏览器打开目标网页
-2. 右键点击要监控的元素 → 检查
-3. 右键高亮代码 → Copy → Copy XPath
+启动服务后访问：
+- **API 文档**: http://localhost:8000/docs
+- **交互式测试**: http://localhost:8000/redoc
 
-### 配置邮件通知
+### 核心 API
 
-1. 访问"邮件通知配置"页面
-2. 添加 SMTP 配置
-3. 测试连接并启用配置
+```http
+# 用户认证
+POST /api/auth/login
+POST /api/auth/register
 
-### 用户管理 (管理员功能)
+# 监控任务
+GET    /api/monitor-tasks
+POST   /api/monitor-tasks
+PUT    /api/monitor-tasks/{id}
+DELETE /api/monitor-tasks/{id}
 
-1. 使用管理员账户登录
-2. 点击右上角用户头像 → "用户管理"
-3. 添加、编辑或删除用户账户
-4. 设置用户角色和权限
+# 监控日志
+GET /api/monitor-logs
 
-## 📁 项目结构
+# 邮件配置
+GET    /api/email-configs
+POST   /api/email-configs
+```
+
+## 📁 项目架构
 
 ```
 WebMonitor/
-├── backend/            # FastAPI后端
-├── frontend/           # React前端
-├── EarlyScripts/       # 早期Python脚本
-└── README.md           # 项目说明
+├── 📦 backend/              # 后端服务
+│   ├── 📂 app/
+│   │   ├── 📂 api/         # API 路由层
+│   │   ├── 📂 core/        # 核心配置
+│   │   ├── 📂 db/          # 数据库层
+│   │   ├── 📂 services/    # 业务逻辑层
+│   │   └── 📂 schemas/     # 数据验证层
+│   ├── 🚀 main.py          # 应用入口
+│   └── 🐳 Dockerfile
+├── 🎨 frontend/             # 前端应用
+│   ├── 📂 src/
+│   │   ├── 📂 components/  # React 组件
+│   │   ├── 📂 pages/       # 页面组件
+│   │   └── 📂 contexts/    # 状态管理
+│   ├── 📄 package.json
+│   └── 🐳 Dockerfile
+├── 🐳 docker-compose.yml    # 容器编排
+└── 📚 README.md
 ```
 
-## ⚠️ 注意事项
+## 🔍 故障排除
 
-- 邮件配置通过 Web 界面完成，建议使用应用专用密码
-- 监控间隔建议不少于 60 秒，避免对目标网站造成压力
-- 确保 ChromeDriver 版本与 Chrome 浏览器匹配
-- XPath 选择器应选择稳定元素避免动态 ID
+### 常见问题
 
-## 📧 常用 SMTP 配置
+<details>
+<summary>🔧 Docker 部署失败</summary>
 
-- **QQ 邮箱**: smtp.qq.com:465
-- **163 邮箱**: smtp.163.com:465
-- **Gmail**: smtp.gmail.com:587
-- **飞书邮箱**: smtp.feishu.cn:465
+```bash
+# 检查容器状态
+docker-compose ps
+
+# 查看详细日志
+docker-compose logs -f
+
+# 重新构建
+docker-compose down && docker-compose up -d --build
+```
+</details>
+
+<details>
+<summary>🔧 ChromeDriver 版本问题</summary>
+
+```bash
+# 进入容器检查
+docker-compose exec backend chromium --version
+docker-compose exec backend chromedriver --version
+
+# 重新构建后端镜像
+docker-compose build --no-cache backend
+```
+</details>
+
+<details>
+<summary>🔧 API 连接问题</summary>
+
+```bash
+# 检查网络连接
+curl http://localhost:8000/health
+
+# 检查 CORS 配置
+curl -H "Origin: http://localhost:3000" http://localhost:8000/api/test
+```
+</details>
+
+### 性能优化
+
+- 使用 PostgreSQL 提升数据库性能
+- 配置 Redis 缓存加速响应
+- 启用 Nginx 负载均衡
+- 调整 Selenium 并发数
+
+## 🤝 贡献指南
+
+我们欢迎所有形式的贡献！
+
+### 开发流程
+
+1. **Fork** 项目
+2. **创建** 功能分支 (`git checkout -b feature/AmazingFeature`)
+3. **提交** 更改 (`git commit -m 'Add some AmazingFeature'`)
+4. **推送** 到分支 (`git push origin feature/AmazingFeature`)
+5. **创建** Pull Request
+
+### 代码规范
+
+- 遵循 PEP 8 (Python)
+- 遵循 ESLint 规则 (JavaScript)
+- 编写单元测试
+- 更新相关文档
 
 ## 📄 许可证
 
-本项目采用 **Creative Commons Attribution-NonCommercial 4.0 International License** 许可证。
-
-这意味着您可以：
-
-- ✅ **共享** — 以任何媒介或格式复制和重新分发本软件
-- ✅ **改编** — 修改、转换和基于本软件进行创作
-
-但需遵守以下条件：
-
-- 📝 **署名** — 您必须提供适当的署名，提供许可证链接，并说明是否进行了更改
-- 🚫 **非商业性使用** — 您不得将本软件用于商业目的
-
-**禁止商业用途**：未经版权持有人明确许可，不得将本软件或其修改版本用于任何商业目的。
-
-详细许可证信息请查看：[LICENSE](./LICENSE) 文件
+本项目采用 [Creative Commons Attribution-NonCommercial 4.0 International License](LICENSE) 许可证。
 
 ---
 
-🌟 如有问题欢迎提交 Issue 或 Pull Request！
+## 📞 支持
+
+- 📧 **邮箱**: tianbosong2674@outlook.com
+- 🐛 **问题反馈**: [GitHub Issues](https://github.com/qfpqhyl/WebMonitor/issues)
+- 💬 **讨论**: [GitHub Discussions](https://github.com/qfpqhyl/WebMonitor/discussions)
+
+---
+
+<p align="center">
+  <strong>⭐ 如果这个项目对你有帮助，请给我们一个 Star！</strong>
+</p>
+
+<p align="center">
+  Made with ❤️ by WebMonitor Team
+</p>
