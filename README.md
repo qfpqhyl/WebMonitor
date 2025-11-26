@@ -35,26 +35,6 @@ WebMonitor 是一个企业级的网页内容变化监控平台，采用现代化
 - 📊 **可视化面板** - 现代化 React 管理界面
 - ⚡ **高性能** - 支持大规模并发监控任务
 
-## 🏗️ 技术栈
-
-```mermaid
-graph LR
-    A[Frontend] --> B[React 18]
-    A --> C[Material-UI]
-    A --> D[React Query]
-
-    E[Backend] --> F[FastAPI]
-    E --> G[SQLAlchemy]
-    E --> H[APScheduler]
-
-    I[Infrastructure] --> J[Docker]
-    I --> K[SQLite/PostgreSQL]
-    I --> L[Selenium]
-
-    M[Security] --> N[JWT Auth]
-    M --> O[Bcrypt]
-```
-
 ## 🚀 快速开始
 
 ### 🐳 Docker 部署 (推荐)
@@ -152,27 +132,6 @@ SELENIUM_HEADLESS=true
 启动服务后访问：
 - **API 文档**: http://localhost:8000/docs
 - **交互式测试**: http://localhost:8000/redoc
-
-### 核心 API
-
-```http
-# 用户认证
-POST /api/auth/login
-POST /api/auth/register
-
-# 监控任务
-GET    /api/monitor-tasks
-POST   /api/monitor-tasks
-PUT    /api/monitor-tasks/{id}
-DELETE /api/monitor-tasks/{id}
-
-# 监控日志
-GET /api/monitor-logs
-
-# 邮件配置
-GET    /api/email-configs
-POST   /api/email-configs
-```
 
 ## 📁 项目架构
 
