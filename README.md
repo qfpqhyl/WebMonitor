@@ -17,6 +17,7 @@
 <p align="center">
   <img src="./image/样例图片.png" alt="WebMonitor Dashboard" width="800">
 </p>
+
 ---
 
 ## 📖 关于项目
