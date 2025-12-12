@@ -49,8 +49,14 @@ class MonitorScheduler:
                         self.scheduler.remove_job(job_id)
 
                     # 添加新的定时作业 - 包装异步函数调用
+                    def task_wrapper():
+                        try:
+                            asyncio.run(self.monitor_service.check_single_task(task.id))
+                        except Exception as e:
+                            logger.error(f"执行任务 {task.name} 时发生错误: {e}")
+                    
                     self.scheduler.add_job(
-                        func=lambda: asyncio.run(self.monitor_service.check_single_task(task.id)),
+                        func=task_wrapper,
                         trigger=IntervalTrigger(seconds=task.interval),
                         id=job_id,
                         name=f"监控任务: {task.name}",
@@ -93,8 +99,14 @@ class MonitorScheduler:
                 self.scheduler.remove_job(job_id)
 
             # 添加新的定时作业 - 包装异步函数调用
+            def task_wrapper():
+                try:
+                    asyncio.run(self.monitor_service.check_single_task(task_id))
+                except Exception as e:
+                    logger.error(f"执行任务 {task_id} 时发生错误: {e}")
+            
             self.scheduler.add_job(
-                func=lambda: asyncio.run(self.monitor_service.check_single_task(task_id)),
+                func=task_wrapper,
                 trigger=IntervalTrigger(seconds=interval),
                 id=job_id,
                 name=f"监控任务: {task_id}",

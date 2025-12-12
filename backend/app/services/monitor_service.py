@@ -117,7 +117,7 @@ class MonitorService:
 
                 # 发送邮件通知给任务所有者
                 try:
-                    await self.email_service.send_change_notification(
+                    self.email_service.send_change_notification(
                         task_name=task.name,
                         url=task.url,
                         title=title or "未知标题",
@@ -223,12 +223,13 @@ class MonitorService:
             old_content: 旧内容
             check_time: 检查时间
         """
+        db = SessionLocal()
         try:
             from ..db.crud import get_task_subscriptions
             from ..db.models import TaskSubscription
 
             # 获取所有活跃的订阅
-            subscriptions = get_task_subscriptions(db=SessionLocal(), task_id=task.id)
+            subscriptions = get_task_subscriptions(db=db, task_id=task.id)
 
             logger.info(f"任务 {task.name} 有 {len(subscriptions)} 个订阅者需要通知")
 
@@ -237,7 +238,7 @@ class MonitorService:
                     # 使用订阅者的邮件配置，如果没有则使用默认配置
                     email_config_id = subscription.email_config_id
 
-                    await self.email_service.send_change_notification(
+                    self.email_service.send_change_notification(
                         task_name=f"[订阅] {task.name}",
                         url=task.url,
                         title=title or "未知标题",
@@ -245,8 +246,7 @@ class MonitorService:
                         new_content=new_content,
                         check_time=check_time,
                         email_config_id=email_config_id,
-                        user_id=subscription.user_id,
-                        is_subscription=True
+                        user_id=subscription.user_id
                     )
 
                     logger.info(f"已向订阅者 {subscription.user_id} 发送通知")
@@ -257,3 +257,5 @@ class MonitorService:
 
         except Exception as e:
             logger.error(f"获取订阅者列表失败: {e}")
+        finally:
+            db.close()

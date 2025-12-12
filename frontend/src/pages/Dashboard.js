@@ -79,7 +79,7 @@ const Dashboard = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+    <Box sx={{ flexGrow: 1 }}>
       <Container maxWidth="xl">
         {/* Header Section */}
         <Box

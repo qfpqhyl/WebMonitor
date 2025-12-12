@@ -119,7 +119,16 @@ const StatCard = ({ title, value, icon, color, subtitle, trend }) => {
         <Box sx={{ mt: 2 }}>
           <LinearProgress
             variant="determinate"
-            value={typeof value === 'number' ? Math.min((value / 100) * 100, 100) : 0}
+            value={(() => {
+              if (typeof value === 'number') {
+                return Math.min(value, 100);
+              }
+              if (typeof value === 'string') {
+                const num = parseFloat(value);
+                return isNaN(num) ? 0 : Math.min(num, 100);
+              }
+              return 0;
+            })()}
             sx={{
               height: 6,
               borderRadius: 3,

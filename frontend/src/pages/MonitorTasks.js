@@ -347,33 +347,46 @@ const MonitorTasks = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2,
+              height: '100%',
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
               borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #10b981 0%, rgba(16, 185, 129, 0.6) 100%)',
+              },
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Box display="flex" alignItems="center">
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(16, 185, 129, 0.1)',
                     color: '#10b981',
-                    mr: 2,
                     width: 48,
                     height: 48,
                   }}
                 >
                   <MonitorIcon />
                 </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {tasks.length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    总任务数
-                  </Typography>
-                </Box>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.length}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  总任务数
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -381,33 +394,46 @@ const MonitorTasks = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2,
+              height: '100%',
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
               borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #22d3ee 0%, rgba(34, 211, 238, 0.6) 100%)',
+              },
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Box display="flex" alignItems="center">
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(34, 211, 238, 0.1)',
                     color: '#22d3ee',
-                    mr: 2,
                     width: 48,
                     height: 48,
                   }}
                 >
                   <SuccessIcon />
                 </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {tasks.filter(task => task.is_active).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    活跃任务
-                  </Typography>
-                </Box>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.filter(task => task.is_active).length}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  活跃任务
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -415,33 +441,46 @@ const MonitorTasks = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2,
+              height: '100%',
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
               borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #ef4444 0%, rgba(239, 68, 68, 0.6) 100%)',
+              },
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Box display="flex" alignItems="center">
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(239, 68, 68, 0.1)',
                     color: '#ef4444',
-                    mr: 2,
                     width: 48,
                     height: 48,
                   }}
                 >
                   <PauseIcon />
                 </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {tasks.filter(task => !task.is_active).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    暂停任务
-                  </Typography>
-                </Box>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.filter(task => !task.is_active).length}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  暂停任务
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -449,33 +488,46 @@ const MonitorTasks = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2,
+              height: '100%',
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
               borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #a78bfa 0%, rgba(167, 139, 250, 0.6) 100%)',
+              },
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Box display="flex" alignItems="center">
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(167, 139, 250, 0.1)',
                     color: '#a78bfa',
-                    mr: 2,
                     width: 48,
                     height: 48,
                   }}
                 >
                   <NotificationsIcon />
                 </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {tasks.filter(task => task.email_config_id).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    邮件通知
-                  </Typography>
-                </Box>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.filter(task => task.email_config_id).length}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  邮件通知
+                </Typography>
               </Box>
             </CardContent>
           </Card>

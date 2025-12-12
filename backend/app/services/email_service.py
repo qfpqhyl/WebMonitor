@@ -50,7 +50,7 @@ class EmailService:
             "is_ssl": True
         }
 
-    async def send_change_notification(
+    def send_change_notification(
         self,
         task_name: str,
         url: str,
@@ -77,6 +77,9 @@ class EmailService:
         Returns:
             bool: 发送是否成功
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
         # 优先使用指定的邮箱配置ID
         if email_config_id:
             config = self.get_email_config_by_id(email_config_id)
@@ -101,7 +104,7 @@ class EmailService:
             is_ssl = env_config["is_ssl"]
 
         if not all([smtp_server, smtp_user, smtp_password, receiver_email]):
-            print("邮件配置不完整，跳过发送")
+            logger.warning("邮件配置不完整，跳过发送")
             return False
 
         subject = f"{title} - 内容更新通知"
@@ -129,7 +132,15 @@ class EmailService:
 此邮件由 WebMonitor 自动发送。
         """
 
-        return self._send_email(subject, email_body, smtp_server, smtp_port, smtp_user, smtp_password, receiver_email, is_ssl)
+        logger.info(f"正在发送变更通知邮件，收件人: {receiver_email}")
+        result = self._send_email(subject, email_body, smtp_server, smtp_port, smtp_user, smtp_password, receiver_email, is_ssl)
+
+        if result:
+            logger.info(f"变更通知邮件发送成功，收件人: {receiver_email}")
+        else:
+            logger.error(f"变更通知邮件发送失败，收件人: {receiver_email}")
+
+        return result
 
     def _send_email(self, subject: str, content: str, smtp_server: str, smtp_port: int,
                   smtp_user: str, smtp_password: str, receiver_email: str, is_ssl: bool = True) -> bool:
@@ -239,7 +250,7 @@ class EmailService:
             config.is_ssl
         )
 
-    async def send_test_email(self, config: EmailConfig) -> bool:
+    def send_test_email(self, config: EmailConfig) -> bool:
         """
         发送测试邮件
 
@@ -250,6 +261,9 @@ class EmailService:
             bool: 发送是否成功
         """
         from datetime import datetime
+        import logging
+
+        logger = logging.getLogger(__name__)
 
         test_time = datetime.now()
         subject = "WebMonitor 邮件配置测试"
@@ -269,7 +283,8 @@ SMTP服务器: {config.smtp_server}:{config.smtp_port}
 此邮件由 WebMonitor 自动发送。
         """
 
-        return self._send_email(
+        logger.info(f"正在发送测试邮件，配置ID: {config.id}")
+        result = self._send_email(
             subject,
             email_body,
             config.smtp_server,
@@ -279,6 +294,13 @@ SMTP服务器: {config.smtp_server}:{config.smtp_port}
             config.receiver_email,
             config.is_ssl
         )
+
+        if result:
+            logger.info(f"测试邮件发送成功，配置ID: {config.id}")
+        else:
+            logger.error(f"测试邮件发送失败，配置ID: {config.id}")
+
+        return result
 
     def _test_connection(self, smtp_server: str, smtp_port: int, smtp_user: str,
                          smtp_password: str, is_ssl: bool) -> dict:

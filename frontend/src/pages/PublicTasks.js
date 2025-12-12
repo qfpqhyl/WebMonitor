@@ -21,6 +21,14 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Avatar,
 } from '@mui/material';
 import {
   Public as PublicIcon,
@@ -30,6 +38,10 @@ import {
   BookmarkBorder as SubscribeIcon,
   BookmarkRemove as UnsubscribeIcon,
   Info as InfoIcon,
+  Monitor as MonitorIcon,
+  Schedule as ScheduleIcon,
+  Link as LinkIcon,
+  CheckCircle as SuccessIcon,
 } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
@@ -299,105 +311,407 @@ const PublicTasks = () => {
   ];
 
   return (
-    <Box sx={{ width: '100%' }}>
-      {/* 页面标题和订阅信息 */}
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <PublicIcon sx={{ fontSize: 28, color: 'primary.main' }} />
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-              公开任务市场
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
-              发现和订阅其他用户分享的监控任务
-            </Typography>
-          </Box>
+    <Box>
+      {/* Header Section */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 4,
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              color: '#1a1a1a',
+              mb: 1,
+            }}
+          >
+            公开任务市场
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            发现和订阅其他用户分享的监控任务
+          </Typography>
         </Box>
       </Box>
 
-      {/* 订阅信息卡片 */}
-      <Card sx={{ mb: 3, backgroundColor: alpha('#1976d2', 0.04), border: `1px solid ${alpha('#1976d2', 0.12)}` }}>
-        <CardContent sx={{ py: 2 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={4}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <PeopleIcon sx={{ fontSize: 24, color: 'primary.main' }} />
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    订阅使用情况
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {subscriptionInfo.current_subscriptions} / {subscriptionInfo.max_subscriptions}
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 100 }}>
-                  剩余名额：
-                </Typography>
-                <Box sx={{ flexGrow: 1, mr: 2 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={(subscriptionInfo.current_subscriptions / subscriptionInfo.max_subscriptions) * 100}
-                    sx={{
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: alpha('#000', 0.1),
-                      '& .MuiLinearProgress-bar': {
-                        borderRadius: 4,
-                        backgroundColor: subscriptionInfo.remaining_slots > 0 ? '#1976d2' : '#d32f2f',
-                      },
-                    }}
-                  />
-                </Box>
-                <Typography
-                  variant="h6"
+      {/* Stats Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              height: '100%',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+              borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #1976d2 0%, rgba(25, 118, 210, 0.6) 100%)',
+              },
+              position: 'relative',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                <Avatar
                   sx={{
-                    fontWeight: 600,
-                    color: subscriptionInfo.remaining_slots > 0 ? 'success.main' : 'error.main',
-                    minWidth: 50,
+                    bgcolor: 'rgba(25, 118, 210, 0.1)',
+                    color: '#1976d2',
+                    width: 48,
+                    height: 48,
                   }}
                 >
-                  {subscriptionInfo.remaining_slots}
+                  <PublicIcon />
+                </Avatar>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.length}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  公开任务
                 </Typography>
               </Box>
-            </Grid>
-          </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              height: '100%',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+              borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #10b981 0%, rgba(16, 185, 129, 0.6) 100%)',
+              },
+              position: 'relative',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                <Avatar
+                  sx={{
+                    bgcolor: 'rgba(16, 185, 129, 0.1)',
+                    color: '#10b981',
+                    width: 48,
+                    height: 48,
+                  }}
+                >
+                  <PeopleIcon />
+                </Avatar>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {subscriptionInfo.current_subscriptions}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  我的订阅
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              height: '100%',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+              borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #22d3ee 0%, rgba(34, 211, 238, 0.6) 100%)',
+              },
+              position: 'relative',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                <Avatar
+                  sx={{
+                    bgcolor: subscriptionInfo.remaining_slots > 0 ? 'rgba(34, 211, 238, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    color: subscriptionInfo.remaining_slots > 0 ? '#22d3ee' : '#ef4444',
+                    width: 48,
+                    height: 48,
+                  }}
+                >
+                  {subscriptionInfo.remaining_slots > 0 ? <SuccessIcon /> : <PeopleIcon />}
+                </Avatar>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {subscriptionInfo.remaining_slots}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  剩余额度
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              height: '100%',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+              borderRadius: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-4px) scale(1.02)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #a78bfa 0%, rgba(167, 139, 250, 0.6) 100%)',
+              },
+              position: 'relative',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                <Avatar
+                  sx={{
+                    bgcolor: 'rgba(167, 139, 250, 0.1)',
+                    color: '#a78bfa',
+                    width: 48,
+                    height: 48,
+                  }}
+                >
+                  <MonitorIcon />
+                </Avatar>
+              </Box>
+              <Box>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
+                  {tasks.reduce((sum, task) => sum + task.subscription_count, 0)}
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  总订阅数
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* 订阅信息卡片 */}
+      <Card sx={{ mb: 4, backgroundColor: alpha('#1976d2', 0.04), border: `1px solid ${alpha('#1976d2', 0.12)}` }}>
+        <CardContent sx={{ py: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+            <PeopleIcon sx={{ fontSize: 20, color: '#1976d2' }} />
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
+              订阅使用情况
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+            • 当前已订阅 {subscriptionInfo.current_subscriptions} 个任务，最多可订阅 {subscriptionInfo.max_subscriptions} 个
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+            • 剩余订阅额度：{subscriptionInfo.remaining_slots} 个
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
+            • 订阅任务后，当任务监控到内容变化时，您会收到邮件通知
+          </Typography>
         </CardContent>
       </Card>
 
-      {/* 数据表格 */}
-      <Card sx={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-        <CardContent sx={{ p: 0 }}>
-          <DataGrid
-            rows={tasks}
-            columns={columns}
-            loading={loading}
-            disableSelectionOnClick
-            disableDensitySelector
-            sx={{
-              border: 'none',
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: alpha('#1976d2', 0.02),
-                borderBottom: `2px solid ${alpha('#1976d2', 0.1)}`,
-                fontSize: '0.875rem',
-                fontWeight: 600,
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: `1px solid ${alpha('#000', 0.06)}`,
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: alpha('#1976d2', 0.02),
-              },
-            }}
-            getRowId={(row) => row.id}
-            autoHeight
-            hideFooter
-          />
-        </CardContent>
-      </Card>
+      {/* Tasks Table */}
+      <Paper
+        sx={{
+          borderRadius: 4,
+          border: '1px solid rgba(0, 0, 0, 0.06)',
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            公开任务列表
+          </Typography>
+        </Box>
+        {tasks.length === 0 ? (
+          <Box sx={{ textAlign: 'center', p: 8 }}>
+            <Avatar
+              sx={{
+                bgcolor: 'rgba(25, 118, 210, 0.1)',
+                color: '#1976d2',
+                width: 80,
+                height: 80,
+                mx: 'auto',
+                mb: 2,
+              }}
+            >
+              <PublicIcon sx={{ fontSize: 40 }} />
+            </Avatar>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              暂无公开任务
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              当前没有用户分享公开的监控任务
+            </Typography>
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: 'rgba(25, 118, 210, 0.05)' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>任务信息</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>创建者</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>订阅数</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>检查间隔</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>创建时间</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tasks.map((task) => (
+                  <TableRow
+                    key={task.id}
+                    sx={{
+                      '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.03)' },
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            mr: 2,
+                            background: 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)',
+                            fontSize: '1rem',
+                          }}
+                        >
+                          {task.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {task.name}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                            <LinkIcon sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{
+                                maxWidth: 200,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {task.url}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <PersonIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+                        <Typography variant="body2">{task.owner_username}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={task.subscription_count}
+                        color="primary"
+                        icon={<PeopleIcon />}
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <ScheduleIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                        <Typography variant="body2">
+                          {task.interval}秒
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        {new Date(task.created_at).toLocaleString()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <Tooltip title={task.user_subscribed ? "取消订阅" : "订阅任务"}>
+                          <Button
+                            size="small"
+                            variant={task.user_subscribed ? "outlined" : "contained"}
+                            color={task.user_subscribed ? "secondary" : "primary"}
+                            startIcon={task.user_subscribed ? <UnsubscribeIcon /> : <SubscribeIcon />}
+                            onClick={() => handleToggleSubscription(task.id)}
+                            disabled={!task.user_subscribed && subscriptionInfo.remaining_slots <= 0}
+                          >
+                            {task.user_subscribed ? "取消订阅" : "订阅"}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="查看详情">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleViewDetails(task)}
+                            sx={{
+                              color: 'info.main',
+                              '&:hover': { backgroundColor: 'rgba(0, 188, 212, 0.1)' },
+                            }}
+                          >
+                            <InfoIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
 
       {/* 任务详情对话框 */}
       <Dialog open={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} maxWidth="md" fullWidth>

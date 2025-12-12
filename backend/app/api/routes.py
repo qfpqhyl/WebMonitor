@@ -204,15 +204,15 @@ async def test_email_config(config_id: int, db: Session = Depends(get_db), curre
         return connection_result
 
     # 如果连接成功，发送测试邮件
-    try:
-        from datetime import datetime
-        success = await email_service.send_test_email(config)
-        if success:
-            return {"success": True, "message": "邮件连接测试成功，测试邮件已发送"}
-        else:
-            return {"success": False, "error": "测试邮件发送失败"}
-    except Exception as e:
-        return {"success": False, "error": f"测试邮件发送失败: {str(e)}"}
+        try:
+            from datetime import datetime
+            success = email_service.send_test_email(config)
+            if success:
+                return {"success": True, "message": "邮件连接测试成功，测试邮件已发送"}
+            else:
+                return {"success": False, "error": "测试邮件发送失败"}
+        except Exception as e:
+            return {"success": False, "error": f"测试邮件发送失败: {str(e)}"}
 
 # 黑名单域名相关API（仅管理员可访问）
 @router.post("/blacklist-domains", response_model=BlacklistDomainResponse)
