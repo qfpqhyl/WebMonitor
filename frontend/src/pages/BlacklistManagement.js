@@ -33,16 +33,14 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Security as SecurityIcon,
-  CheckCircle as CheckCircleIcon,
   Block as BlockIcon,
-  Block as BlockIcon2,
+  NotInterested as BlockOffIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material';
 import axios from 'axios';
 
 const BlacklistManagement = () => {
   const [domains, setDomains] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDomain, setEditingDomain] = useState(null);
   const [formData, setFormData] = useState({
@@ -59,7 +57,6 @@ const BlacklistManagement = () => {
   // 获取黑名单列表
   const fetchDomains = async () => {
     try {
-      setLoading(true);
       const response = await axios.get('/api/blacklist-domains');
       setDomains(response.data);
     } catch (error) {
@@ -69,8 +66,6 @@ const BlacklistManagement = () => {
         message: '获取黑名单失败: ' + (error.response?.data?.detail || '未知错误'),
         severity: 'error',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -159,97 +154,7 @@ const BlacklistManagement = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // 表格列定义
-  const columns = [
-    {
-      field: 'domain',
-      headerName: '域名',
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SecurityIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: 'description',
-      headerName: '描述',
-      flex: 1.5,
-      minWidth: 250,
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {params.value || '-'}
-        </Typography>
-      ),
-    },
-    {
-      field: 'is_active',
-      headerName: '状态',
-      width: 100,
-      renderCell: (params) => (
-        <Chip
-          size="small"
-          label={params.value ? '启用' : '禁用'}
-          color={params.value ? 'success' : 'default'}
-          icon={params.value ? <CheckCircleIcon /> : <BlockIcon />}
-          variant="outlined"
-        />
-      ),
-    },
-    {
-      field: 'created_at',
-      headerName: '创建时间',
-      width: 180,
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {new Date(params.value).toLocaleString()}
-        </Typography>
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: '操作',
-      width: 120,
-      sortable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="编辑">
-            <IconButton
-              size="small"
-              onClick={() => handleOpenDialog(params.row)}
-              sx={{
-                color: 'primary.main',
-                '&:hover': {
-                  backgroundColor: alpha('#1976d2', 0.08),
-                },
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="删除">
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(params.row.id)}
-              sx={{
-                color: 'error.main',
-                '&:hover': {
-                  backgroundColor: alpha('#d32f2f', 0.08),
-                },
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
-
+  
   return (
     <Box>
       {/* Header Section */}
@@ -434,7 +339,7 @@ const BlacklistManagement = () => {
                     height: 48,
                   }}
                 >
-                  <BlockIcon2 />
+                  <BlockOffIcon />
                 </Avatar>
               </Box>
               <Box>
@@ -626,7 +531,7 @@ const BlacklistManagement = () => {
                         size="small"
                         label={domain.is_active ? '启用' : '禁用'}
                         color={domain.is_active ? 'error' : 'default'}
-                        icon={domain.is_active ? <BlockIcon /> : <BlockIcon2 />}
+                        icon={domain.is_active ? <BlockIcon /> : null}
                         variant="outlined"
                       />
                     </TableCell>

@@ -16,7 +16,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  LinearProgress,
   FormControl,
   InputLabel,
   Select,
@@ -34,7 +33,6 @@ import {
   Public as PublicIcon,
   People as PeopleIcon,
   Person as PersonIcon,
-  Language as LanguageIcon,
   BookmarkBorder as SubscribeIcon,
   BookmarkRemove as UnsubscribeIcon,
   Info as InfoIcon,
@@ -43,12 +41,10 @@ import {
   Link as LinkIcon,
   CheckCircle as SuccessIcon,
 } from '@mui/icons-material';
-import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 
 const PublicTasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState({
     current_subscriptions: 0,
     max_subscriptions: 10,
@@ -68,7 +64,6 @@ const PublicTasks = () => {
   // 获取公开任务列表
   const fetchPublicTasks = async () => {
     try {
-      setLoading(true);
       const response = await axios.get('/api/public-tasks');
       setTasks(response.data);
     } catch (error) {
@@ -78,8 +73,6 @@ const PublicTasks = () => {
         message: '获取公开任务失败: ' + (error.response?.data?.detail || '未知错误'),
         severity: 'error',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -183,133 +176,7 @@ const PublicTasks = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // 表格列定义
-  const columns = [
-    {
-      field: 'name',
-      headerName: '任务名称',
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <PublicIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: 'url',
-      headerName: '监控URL',
-      flex: 1.5,
-      minWidth: 250,
-      renderCell: (params) => (
-        <Tooltip title={params.value} arrow>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LanguageIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                maxWidth: 200,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {params.value}
-            </Typography>
-          </Box>
-        </Tooltip>
-      ),
-    },
-    {
-      field: 'description',
-      headerName: '描述',
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {params.value || '-'}
-        </Typography>
-      ),
-    },
-    {
-      field: 'owner_username',
-      headerName: '创建者',
-      width: 120,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-          <Typography variant="body2">
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: 'subscription_count',
-      headerName: '订阅数',
-      width: 100,
-      renderCell: (params) => (
-        <Chip
-          size="small"
-          label={params.value}
-          color="primary"
-          icon={<PeopleIcon />}
-          variant="outlined"
-        />
-      ),
-    },
-    {
-      field: 'created_at',
-      headerName: '创建时间',
-      width: 180,
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {new Date(params.value).toLocaleString()}
-        </Typography>
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: '操作',
-      width: 180,
-      sortable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Tooltip title={params.row.user_subscribed ? "取消订阅" : "订阅任务"}>
-            <Button
-              size="small"
-              variant={params.row.user_subscribed ? "outlined" : "contained"}
-              color={params.row.user_subscribed ? "secondary" : "primary"}
-              startIcon={params.row.user_subscribed ? <UnsubscribeIcon /> : <SubscribeIcon />}
-              onClick={() => handleToggleSubscription(params.row.id)}
-              disabled={!params.row.user_subscribed && subscriptionInfo.remaining_slots <= 0}
-            >
-              {params.row.user_subscribed ? "取消订阅" : "订阅"}
-            </Button>
-          </Tooltip>
-          <Tooltip title="查看详情">
-            <IconButton
-              size="small"
-              onClick={() => handleViewDetails(params.row)}
-              sx={{
-                color: 'info.main',
-                '&:hover': {
-                  backgroundColor: alpha('#0288d1', 0.08),
-                },
-              }}
-            >
-              <InfoIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
-
+  
   return (
     <Box>
       {/* Header Section */}

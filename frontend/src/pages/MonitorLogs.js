@@ -21,7 +21,6 @@ import {
   CardContent,
   Button,
   Avatar,
-  alpha,
 } from '@mui/material';
 import {
   Code as CodeIcon,

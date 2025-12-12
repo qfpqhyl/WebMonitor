@@ -33,21 +33,17 @@ import {
   Email as EmailIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Language as LanguageIcon,
   Notifications as NotificationsActiveIcon,
   NotificationsOff as NotificationsOffIcon,
   Settings as SettingsIcon,
   Monitor as MonitorIcon,
   Link as LinkIcon,
-  CheckCircle as SuccessIcon,
-  Schedule as ScheduleIcon,
-} from '@mui/icons-material';
+  } from '@mui/icons-material';
 import axios from 'axios';
 
 const MySubscriptions = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [emailConfigs, setEmailConfigs] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState(null);
   const [formData, setFormData] = useState({
@@ -63,7 +59,6 @@ const MySubscriptions = () => {
   // 获取订阅列表
   const fetchSubscriptions = async () => {
     try {
-      setLoading(true);
       const response = await axios.get('/api/subscriptions');
       setSubscriptions(response.data);
     } catch (error) {
@@ -73,8 +68,6 @@ const MySubscriptions = () => {
         message: '获取订阅列表失败: ' + (error.response?.data?.detail || '未知错误'),
         severity: 'error',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -165,127 +158,7 @@ const MySubscriptions = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // 表格列定义
-  const columns = [
-    {
-      field: 'task_name',
-      headerName: '任务名称',
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SubscriptionsIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: 'task_url',
-      headerName: '监控URL',
-      flex: 1.5,
-      minWidth: 250,
-      renderCell: (params) => (
-        <Tooltip title={params.value} arrow>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LanguageIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                maxWidth: 200,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {params.value}
-            </Typography>
-          </Box>
-        </Tooltip>
-      ),
-    },
-    {
-      field: 'is_active',
-      headerName: '通知状态',
-      width: 120,
-      renderCell: (params) => (
-        <Chip
-          size="small"
-          label={params.value ? '已启用' : '已停用'}
-          color={params.value ? 'success' : 'default'}
-          icon={params.value ? <NotificationsActiveIcon /> : <NotificationsOffIcon />}
-          variant="outlined"
-        />
-      ),
-    },
-    {
-      field: 'email_config_id',
-      headerName: '邮箱配置',
-      width: 150,
-      renderCell: (params) => {
-        const config = emailConfigs.find(c => c.id === params.value);
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <EmailIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {config ? config.name : '默认配置'}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: 'created_at',
-      headerName: '订阅时间',
-      width: 180,
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {new Date(params.value).toLocaleString()}
-        </Typography>
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: '操作',
-      width: 120,
-      sortable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="编辑订阅">
-            <IconButton
-              size="small"
-              onClick={() => handleOpenEditDialog(params.row)}
-              sx={{
-                color: 'primary.main',
-                '&:hover': {
-                  backgroundColor: alpha('#1976d2', 0.08),
-                },
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="取消订阅">
-            <IconButton
-              size="small"
-              onClick={() => handleDeleteSubscription(params.row.id)}
-              sx={{
-                color: 'error.main',
-                '&:hover': {
-                  backgroundColor: alpha('#d32f2f', 0.08),
-                },
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
-
+  
   return (
     <Box>
       {/* Header Section */}
