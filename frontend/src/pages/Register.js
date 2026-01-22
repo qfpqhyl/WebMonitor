@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -264,22 +265,14 @@ const Register = () => {
                 </IconButton>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                  <Avatar
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      mr: 2,
-                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
-                    }}
-                  >
-                    <MonitorIcon sx={{ fontSize: 26 }} />
-                  </Avatar>
+                  <Box sx={{ mr: 2 }}>
+                    <WebMonitorLogo size={48} showPulse />
+                  </Box>
                   <Typography
                     variant="h5"
                     sx={{
                       fontWeight: 700,
-                      color: '#0f172a',
+                      color: '#334155',
                     }}
                   >
                     WebMonitor
@@ -290,7 +283,7 @@ const Register = () => {
                   variant="h2"
                   component="h1"
                   sx={{
-                    color: '#0f172a',
+                    color: '#334155',
                     fontWeight: 800,
                     mb: 3,
                     fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -386,7 +379,7 @@ const Register = () => {
                       variant="h4"
                       sx={{
                         fontWeight: 700,
-                        color: '#0f172a',
+                        color: '#334155',
                       }}
                     >
                       创建账户

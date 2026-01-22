@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 
 // Code Block Component
 const CodeBlock = ({ children, language = 'text' }) => {
@@ -351,15 +352,7 @@ const Documentation = () => {
                   '&:hover': { opacity: 0.8 },
                 }}
               >
-                <Avatar
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  }}
-                >
-                  <MonitorIcon sx={{ fontSize: 20 }} />
-                </Avatar>
+                <WebMonitorLogo size={36} showPulse />
                 <Typography
                   variant="h6"
                   sx={{

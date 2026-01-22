@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import {
   Box,
   Container,
@@ -15,7 +15,6 @@ import {
   Paper,
 } from '@mui/material';
 import {
-  Monitor as MonitorIcon,
   Notifications as NotificationsIcon,
   Security as SecurityIcon,
   Speed as SpeedIcon,
@@ -28,9 +27,11 @@ import {
   RocketLaunch as RocketIcon,
   ArrowForward as ArrowForwardIcon,
   PlayArrow as PlayArrowIcon,
+  Monitor as MonitorIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { WebMonitorLogo, WebMonitorLogoIcon } from '../components/WebMonitorLogo';
 
 // Custom GitHub Icon Component
 const GitHubIcon = (props) => (
@@ -194,16 +195,7 @@ const HomePage = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar
-                sx={{
-                  width: 40,
-                  height: 40,
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
-                }}
-              >
-                <MonitorIcon sx={{ fontSize: 22 }} />
-              </Avatar>
+              <WebMonitorLogo size={40} showPulse />
               <Typography
                 variant="h6"
                 component="div"
@@ -1038,16 +1030,9 @@ const HomePage = () => {
       >
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
-            <Avatar
-              sx={{
-                width: 32,
-                height: 32,
-                mr: 1.5,
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              }}
-            >
-              <MonitorIcon sx={{ fontSize: 18 }} />
-            </Avatar>
+            <Box sx={{ mr: 1.5 }}>
+              <WebMonitorLogo size={32} />
+            </Box>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#334155' }}>
               WebMonitor
             </Typography>
