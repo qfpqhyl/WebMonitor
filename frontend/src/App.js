@@ -18,6 +18,7 @@ import UserManagement from './pages/UserManagement';
 import BlacklistManagement from './pages/BlacklistManagement';
 import PublicTasks from './pages/PublicTasks';
 import MySubscriptions from './pages/MySubscriptions';
+import Documentation from './pages/Documentation';
 
 // 创建React Query客户端
 const queryClient = new QueryClient({
@@ -205,6 +206,9 @@ function App() {
 
               {/* 注册页面 - 不需要认证 */}
               <Route path="/register" element={<Register />} />
+
+              {/* 文档页面 - 不需要认证 */}
+              <Route path="/docs" element={<Documentation />} />
 
               {/* 仪表板 */}
               <Route path="/dashboard" element={

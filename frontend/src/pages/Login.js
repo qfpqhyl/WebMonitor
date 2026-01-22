@@ -21,9 +21,11 @@ import {
   VisibilityOff as VisibilityOffIcon,
   Monitor as MonitorIcon,
   ArrowBack as ArrowBackIcon,
+  ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const Login = () => {
@@ -99,334 +101,429 @@ const Login = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+        background: '#ffffff',
         position: 'relative',
         overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `radial-gradient(circle at 25% 25%, ${alpha('#10b981', 0.1)} 0%, transparent 50%),
-                      radial-gradient(circle at 75% 75%, ${alpha('#2563eb', 0.1)} 0%, transparent 50%)`,
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'url("data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Cpath d="M0 20h40v1H0z"/%3E%3Cpath d="M20 0v40h1V0z"/%3E%3C/g%3E%3C/svg%3E")',
-          backgroundSize: '40px 40px',
-        },
       }}
     >
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-        <Grid container spacing={4} alignItems="center">
-          {/* Left side - Info */}
+      {/* Subtle Background Pattern */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 30%, ${alpha('#10b981', 0.04)} 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, ${alpha('#2563eb', 0.04)} 0%, transparent 50%)
+          `,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Grid Pattern */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `
+            linear-gradient(${alpha('#e2e8f0', 0.4)} 1px, transparent 1px),
+            linear-gradient(90deg, ${alpha('#e2e8f0', 0.4)} 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      <Container
+        maxWidth="lg"
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          py: 4,
+        }}
+      >
+        <Grid container spacing={8} alignItems="center">
+          {/* Left side - Branding */}
           <Grid item xs={12} md={6}>
-            <Box sx={{ pr: { md: 4 } }}>
-              <IconButton
-                onClick={() => navigate('/')}
-                sx={{
-                  mb: 4,
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  '&:hover': {
-                    color: '#10b981',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Box sx={{ pr: { md: 6 } }}>
+                <IconButton
+                  onClick={() => navigate('/')}
+                  sx={{
+                    mb: 4,
+                    color: '#64748b',
+                    border: '1px solid #e2e8f0',
+                    '&:hover': {
+                      color: '#10b981',
+                      borderColor: '#10b981',
+                      backgroundColor: alpha('#10b981', 0.04),
+                    },
+                  }}
+                >
+                  <ArrowBackIcon />
+                </IconButton>
 
-              <Typography
-                variant="overline"
-                component="div"
-                sx={{
-                  color: '#10b981',
-                  fontWeight: 'bold',
-                  mb: 2,
-                  letterSpacing: 2,
-                  textTransform: 'uppercase',
-                }}
-              >
-                欢迎回来
-              </Typography>
-              <Typography
-                variant="h2"
-                component="h1"
-                sx={{
-                  color: 'white',
-                  fontWeight: 800,
-                  mb: 3,
-                  fontSize: { xs: '2.5rem', md: '3.5rem' },
-                  lineHeight: 1.1,
-                }}
-              >
-                登录到
-                <Box component="br" />
-                <Typography component="span" sx={{ color: '#10b981' }}>
-                  WebMonitor
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                  <Avatar
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      mr: 2,
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
+                    }}
+                  >
+                    <MonitorIcon sx={{ fontSize: 26 }} />
+                  </Avatar>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 700,
+                      color: '#0f172a',
+                    }}
+                  >
+                    WebMonitor
+                  </Typography>
+                </Box>
+
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  sx={{
+                    color: '#0f172a',
+                    fontWeight: 800,
+                    mb: 3,
+                    fontSize: { xs: '2.5rem', md: '3.5rem' },
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  欢迎回来
                 </Typography>
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  mb: 4,
-                  fontSize: { xs: '1rem', md: '1.2rem' },
-                  lineHeight: 1.6,
-                }}
-              >
-                继续监控您关心的网页内容，获取实时变化通知
-              </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: '#64748b',
+                    mb: 4,
+                    fontSize: { xs: '1rem', md: '1.15rem' },
+                    lineHeight: 1.7,
+                    fontWeight: 400,
+                  }}
+                >
+                  登录您的账户，继续监控您关心的网页内容变化
+                </Typography>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Box sx={{ display: 'flex', mr: 2 }}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Box
-                      key={star}
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        backgroundColor: '#10b981',
-                        mr: 0.5,
-                      }}
-                    />
+                {/* Feature badges */}
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {[
+                    { label: '实时监控', color: '#10b981' },
+                    { label: '即时通知', color: '#2563eb' },
+                    { label: '安全可靠', color: '#f59e0b' },
+                  ].map((badge, index) => (
+                    <motion.div
+                      key={badge.label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          backgroundColor: alpha(badge.color, 0.08),
+                          border: `1px solid ${alpha(badge.color, 0.15)}`,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: '50%',
+                            backgroundColor: badge.color,
+                            mr: 1,
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: badge.color,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {badge.label}
+                        </Typography>
+                      </Box>
+                    </motion.div>
                   ))}
                 </Box>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  企业级网页监控解决方案
-                </Typography>
               </Box>
-            </Box>
+            </motion.div>
           </Grid>
 
           {/* Right side - Login Form */}
           <Grid item xs={12} md={6}>
-            <Paper
-              elevation={24}
-              sx={{
-                p: { xs: 3, md: 4 },
-                backdropFilter: 'blur(20px)',
-                background: 'rgba(255, 255, 255, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: 4,
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-              }}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
             >
-              {/* Logo */}
-              <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Avatar
-                  sx={{
-                    m: '0 auto',
-                    background: 'linear-gradient(45deg, #10b981 30%, #059669 90%)',
-                    width: 64,
-                    height: 64,
-                    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)',
-                  }}
-                >
-                  <MonitorIcon sx={{ fontSize: 32 }} />
-                </Avatar>
-                <Typography
-                  component="h2"
-                  variant="h4"
-                  sx={{
-                    mt: 2,
-                    fontWeight: 700,
-                    background: 'linear-gradient(45deg, #1a1a1a, #10b981)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  用户登录
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  请输入您的账户信息
-                </Typography>
-              </Box>
-
-              {error && (
-                <Alert
-                  severity="error"
-                  sx={{ width: '100%', mb: 3, borderRadius: 2 }}
-                  variant="filled"
-                >
-                  {error}
-                </Alert>
-              )}
-
-              <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="username"
-                  label="用户名"
-                  name="username"
-                  autoComplete="username"
-                  autoFocus
-                  value={formData.username}
-                  onChange={handleChange}
-                  disabled={loading}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(16, 185, 129, 0.5)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#10b981',
-                        borderWidth: 2,
-                      },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon sx={{ color: 'rgba(0, 0, 0, 0.6)' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="密码"
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={loading}
-                  sx={{
-                    mt: 3,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(16, 185, 129, 0.5)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#10b981',
-                        borderWidth: 2,
-                      },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: 'rgba(0, 0, 0, 0.6)' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleTogglePasswordVisibility}
-                          edge="end"
-                          disabled={loading}
-                          sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  disabled={loading}
-                  size="large"
-                  sx={{
-                    mt: 4,
-                    mb: 2,
-                    py: 2,
-                    background: 'linear-gradient(45deg, #10b981 30%, #059669 90%)',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    borderRadius: 2,
-                    fontSize: '1rem',
-                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
-                    '&:hover': {
-                      background: 'linear-gradient(45deg, #059669 30%, #047857 90%)',
-                      boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
-                      transform: 'translateY(-1px)',
-                    },
-                    '&:disabled': {
-                      background: 'rgba(0, 0, 0, 0.12)',
-                      color: 'rgba(0, 0, 0, 0.26)',
-                    },
-                  }}
-                >
-                  {loading ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Box
-                        sx={{
-                          width: 20,
-                          height: 20,
-                          mr: 2,
-                          border: '2px solid rgba(255,255,255,0.3)',
-                          borderTop: '2px solid #fff',
-                          borderRadius: '50%',
-                          animation: 'spin 1s linear infinite',
-                        }}
-                      />
-                      登录中...
-                    </Box>
-                  ) : (
-                    '登录'
-                  )}
-                </Button>
-              </Box>
-
-              <Box sx={{ mt: 3, width: '100%', textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  还没有账户？
-                  <Link
-                    component="button"
-                    variant="body2"
-                    onClick={() => navigate('/register')}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: { xs: 4, md: 5 },
+                  background: '#ffffff',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  borderRadius: 4,
+                  boxShadow: '0 25px 80px rgba(0, 0, 0, 0.06)',
+                }}
+              >
+                {/* Form Header */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography
+                    component="h2"
+                    variant="h4"
                     sx={{
-                      ml: 0.5,
-                      color: '#10b981',
-                      fontWeight: 'bold',
-                      textDecoration: 'none',
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      },
+                      fontWeight: 700,
+                      color: '#0f172a',
+                      mb: 1,
                     }}
                   >
-                    立即注册
-                  </Link>
-                </Typography>
-              </Box>
+                    用户登录
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    请输入您的账户信息
+                  </Typography>
+                </Box>
 
-              <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  基于 Selenium 的专业网页监控解决方案
-                </Typography>
-              </Box>
-            </Paper>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Alert
+                      severity="error"
+                      sx={{
+                        width: '100%',
+                        mb: 3,
+                        borderRadius: 2,
+                        backgroundColor: alpha('#ef4444', 0.08),
+                        border: `1px solid ${alpha('#ef4444', 0.2)}`,
+                        color: '#dc2626',
+                        '& .MuiAlert-icon': {
+                          color: '#ef4444',
+                        },
+                      }}
+                    >
+                      {error}
+                    </Alert>
+                  </motion.div>
+                )}
+
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="username"
+                    label="用户名"
+                    name="username"
+                    autoComplete="username"
+                    autoFocus
+                    value={formData.username}
+                    onChange={handleChange}
+                    disabled={loading}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        backgroundColor: '#f8fafc',
+                        '& fieldset': {
+                          borderColor: '#e2e8f0',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#10b981',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#10b981',
+                          borderWidth: 2,
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: '#ffffff',
+                        },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#10b981',
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon sx={{ color: '#94a3b8' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="密码"
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    autoComplete="current-password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    disabled={loading}
+                    sx={{
+                      mt: 3,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        backgroundColor: '#f8fafc',
+                        '& fieldset': {
+                          borderColor: '#e2e8f0',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#10b981',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#10b981',
+                          borderWidth: 2,
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: '#ffffff',
+                        },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#10b981',
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: '#94a3b8' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleTogglePasswordVisibility}
+                            edge="end"
+                            disabled={loading}
+                            sx={{ color: '#94a3b8' }}
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <motion.div
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      disabled={loading}
+                      size="large"
+                      sx={{
+                        mt: 4,
+                        mb: 2,
+                        py: 1.75,
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        color: 'white',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        fontSize: '1rem',
+                        boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
+                        '&:hover': {
+                          boxShadow: '0 6px 20px rgba(16, 185, 129, 0.35)',
+                        },
+                        '&:disabled': {
+                          background: '#e2e8f0',
+                          color: '#94a3b8',
+                        },
+                      }}
+                      endIcon={!loading && <ArrowForwardIcon />}
+                    >
+                      {loading ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              mr: 2,
+                              border: '2px solid rgba(255,255,255,0.3)',
+                              borderTop: '2px solid #fff',
+                              borderRadius: '50%',
+                              animation: 'spin 1s linear infinite',
+                              '@keyframes spin': {
+                                '0%': { transform: 'rotate(0deg)' },
+                                '100%': { transform: 'rotate(360deg)' },
+                              },
+                            }}
+                          />
+                          登录中...
+                        </Box>
+                      ) : (
+                        '登录'
+                      )}
+                    </Button>
+                  </motion.div>
+                </Box>
+
+                <Box sx={{ mt: 4, width: '100%', textAlign: 'center' }}>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    还没有账户？
+                    <Link
+                      component="button"
+                      variant="body2"
+                      onClick={() => navigate('/register')}
+                      sx={{
+                        ml: 0.5,
+                        color: '#10b981',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                      }}
+                    >
+                      立即注册
+                    </Link>
+                  </Typography>
+                </Box>
+
+                <Box sx={{ mt: 3, width: '100%', textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                    基于 Selenium 的专业网页监控解决方案
+                  </Typography>
+                </Box>
+              </Paper>
+            </motion.div>
           </Grid>
         </Grid>
       </Container>
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </Box>
   );
 };
