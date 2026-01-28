@@ -7,7 +7,6 @@ import {
   Alert,
   Container,
   Paper,
-  Avatar,
   Grid,
   alpha,
   IconButton,
@@ -19,7 +18,6 @@ import {
   Person as PersonIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  Monitor as MonitorIcon,
   ArrowBack as ArrowBackIcon,
   ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';

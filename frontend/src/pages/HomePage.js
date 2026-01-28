@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { WebMonitorLogo, WebMonitorLogoIcon } from '../components/WebMonitorLogo';
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 
 // Custom GitHub Icon Component
 const GitHubIcon = (props) => (

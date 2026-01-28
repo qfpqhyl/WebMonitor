@@ -26,7 +26,7 @@ services:
       # 应用配置
       DEBUG: ${DEBUG:-false}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      BACKEND_CORS_ORIGINS: http://localhost:3000,http://webmonitor-frontend:3000
+      BACKEND_CORS_ORIGINS: http://localhost:3000,http://webmonitor-frontend:3000,https://webmonitor.qfpqhyl.top
 
       # 默认管理员账户
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
@@ -51,6 +51,9 @@ services:
       dockerfile: Dockerfile
     container_name: webmonitor-frontend
     restart: unless-stopped
+    environment:
+      # Allow cloudflared tunnel custom domains
+      DANGEROUSLY_DISABLE_HOST_CHECK: "true"
     ports:
       - "3000:3000"
     depends_on:

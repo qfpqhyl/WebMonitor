@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -9,7 +9,6 @@ import {
   ListItemButton,
   ListItemText,
   Paper,
-  Divider,
   IconButton,
   Drawer,
   alpha,
@@ -17,7 +16,6 @@ import {
   Stack,
 } from '@mui/material';
 import {
-  Monitor as MonitorIcon,
   Menu as MenuIcon,
   ArrowBack as ArrowBackIcon,
   RocketLaunch as RocketIcon,
@@ -26,7 +24,6 @@ import {
   Public as PublicIcon,
   Dashboard as DashboardIcon,
   Help as HelpIcon,
-  Code as CodeIcon,
   ContentCopy as CopyIcon,
   Check as CheckIcon,
 } from '@mui/icons-material';
@@ -182,14 +179,14 @@ const Documentation = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('quick-start');
 
-  const sections = [
+  const sections = useMemo(() => [
     { id: 'quick-start', title: '快速开始', icon: <RocketIcon /> },
     { id: 'monitor-tasks', title: '监控任务', icon: <TaskIcon /> },
     { id: 'email-config', title: '邮件配置', icon: <EmailIcon /> },
     { id: 'public-tasks', title: '公开任务与订阅', icon: <PublicIcon /> },
     { id: 'dashboard', title: '仪表板与日志', icon: <DashboardIcon /> },
     { id: 'faq', title: '常见问题', icon: <HelpIcon /> },
-  ];
+  ], []);
 
   // Handle scroll to update active section
   useEffect(() => {
@@ -772,7 +769,7 @@ const Documentation = () => {
               <Box component="ol" sx={{ pl: 3, color: '#64748b' }}>
                 <li>使用浏览器开发者工具验证 XPath 是否正确</li>
                 <li>确保目标元素不是通过 JavaScript 延迟加载的</li>
-                <li>尝试使用更简单的选择器，如 <code>//body</code> 获取整个页面</li>
+                <li>尝试使用更简单的选择器，如 <code>{'//body'}</code> 获取整个页面</li>
                 <li>使用"测试"功能验证配置</li>
               </Box>
             </SubSection>
