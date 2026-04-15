@@ -26,10 +26,13 @@ import {
   ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { WebMonitorLogo } from '../components/WebMonitorLogo';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import { isChineseLanguage } from '../utils/i18n';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -47,8 +50,71 @@ const Register = () => {
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
 
-  // 如果已经登录，重定向到dashboard
+  const content = isChinese ? {
+    heroTitleStart: '创建您的',
+    heroTitleAccent: '监控账户',
+    heroSubtitle: '注册 WebMonitor，开始监控您关心的网页内容变化。',
+    benefitsTitle: '注册后您将获得：',
+    benefits: ['实时网页内容监控', '邮件变化通知', '自定义监控频率', '基于 Selenium 的精准抓取'],
+    formTitle: '创建账户',
+    formSubtitle: '填写以下信息完成注册',
+    username: '用户名',
+    email: '邮箱地址',
+    password: '密码',
+    confirmPassword: '确认密码',
+    passwordStrength: '密码强度',
+    weak: '弱',
+    medium: '中等',
+    strong: '强',
+    submitting: '注册中...',
+    submit: '创建账户',
+    existingAccount: '已有账户？',
+    loginNow: '立即登录',
+    footer: '注册即表示您同意我们的服务条款和隐私政策',
+    validation: {
+      required: '请填写所有必填字段',
+      username: '用户名长度至少为3位',
+      mismatch: '两次输入的密码不一致',
+      password: '密码长度至少为6位',
+      email: '请输入有效的邮箱地址',
+      success: '注册成功！正在跳转到登录页面...',
+      failed: '注册失败，请稍后重试',
+    },
+  } : {
+    heroTitleStart: 'Create your',
+    heroTitleAccent: 'monitoring account',
+    heroSubtitle: 'Join WebMonitor and start tracking the web pages you care about.',
+    benefitsTitle: 'With an account you get:',
+    benefits: ['Real-time page monitoring', 'Email change notifications', 'Custom monitoring intervals', 'Precise Selenium-based extraction'],
+    formTitle: 'Create account',
+    formSubtitle: 'Fill in the details below to get started',
+    username: 'Username',
+    email: 'Email address',
+    password: 'Password',
+    confirmPassword: 'Confirm password',
+    passwordStrength: 'Password strength',
+    weak: 'Weak',
+    medium: 'Medium',
+    strong: 'Strong',
+    submitting: 'Creating account...',
+    submit: 'Create account',
+    existingAccount: 'Already have an account?',
+    loginNow: 'Log in now',
+    footer: 'By registering, you agree to our terms of service and privacy policy',
+    validation: {
+      required: 'Please fill in all required fields.',
+      username: 'Username must be at least 3 characters long.',
+      mismatch: 'The two passwords do not match.',
+      password: 'Password must be at least 6 characters long.',
+      email: 'Please enter a valid email address.',
+      success: 'Registration successful. Redirecting to the login page...',
+      failed: 'Registration failed. Please try again later.',
+    },
+  };
+
   React.useEffect(() => {
     if (isAuthenticated()) {
       navigate('/dashboard', { replace: true });
@@ -67,14 +133,9 @@ const Register = () => {
   const calculatePasswordStrength = (password) => {
     let strength = 0;
 
-    // 长度检查
     if (password.length >= 8) strength += 25;
     if (password.length >= 12) strength += 25;
-
-    // 包含数字
     if (/\d/.test(password)) strength += 25;
-
-    // 包含特殊字符
     if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 25;
 
     return Math.min(strength, 100);
@@ -82,28 +143,28 @@ const Register = () => {
 
   const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('请填写所有必填字段');
+      setError(content.validation.required);
       return false;
     }
 
     if (formData.username.length < 3) {
-      setError('用户名长度至少为3位');
+      setError(content.validation.username);
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('两次输入的密码不一致');
+      setError(content.validation.mismatch);
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('密码长度至少为6位');
+      setError(content.validation.password);
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('请输入有效的邮箱地址');
+      setError(content.validation.email);
       return false;
     }
 
@@ -128,9 +189,9 @@ const Register = () => {
   };
 
   const getPasswordStrengthText = () => {
-    if (passwordStrength < 30) return '弱';
-    if (passwordStrength < 70) return '中等';
-    return '强';
+    if (passwordStrength < 30) return content.weak;
+    if (passwordStrength < 70) return content.medium;
+    return content.strong;
   };
 
   const handleSubmit = async (e) => {
@@ -145,7 +206,6 @@ const Register = () => {
     setSuccess('');
 
     try {
-      // 使用JSON格式进行注册
       const registerData = {
         username: formData.username,
         email: formData.email,
@@ -158,30 +218,21 @@ const Register = () => {
         },
       });
 
-      setSuccess('注册成功！正在跳转到登录页面...');
+      setSuccess(content.validation.success);
 
-      // 2秒后跳转到登录页面
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-
     } catch (err) {
       setError(
         err.response?.data?.detail ||
         err.response?.data?.message ||
-        '注册失败，请稍后重试'
+        content.validation.failed
       );
     } finally {
       setLoading(false);
     }
   };
-
-  const benefits = [
-    { text: '实时网页内容监控', color: '#10b981' },
-    { text: '邮件变化通知', color: '#2563eb' },
-    { text: '自定义监控频率', color: '#f59e0b' },
-    { text: '基于Selenium的精准抓取', color: '#8b5cf6' },
-  ];
 
   return (
     <Box
@@ -192,7 +243,6 @@ const Register = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Subtle Background Pattern */}
       <Box
         sx={{
           position: 'fixed',
@@ -209,7 +259,6 @@ const Register = () => {
         }}
       />
 
-      {/* Grid Pattern */}
       <Box
         sx={{
           position: 'fixed',
@@ -239,7 +288,6 @@ const Register = () => {
         }}
       >
         <Grid container spacing={8} alignItems="center">
-          {/* Left side - Branding */}
           <Grid item xs={12} md={6}>
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -247,33 +295,29 @@ const Register = () => {
               transition={{ duration: 0.6 }}
             >
               <Box sx={{ pr: { md: 6 } }}>
-                <IconButton
-                  onClick={() => navigate('/')}
-                  sx={{
-                    mb: 4,
-                    color: '#64748b',
-                    border: '1px solid #e2e8f0',
-                    '&:hover': {
-                      color: '#2563eb',
-                      borderColor: '#2563eb',
-                      backgroundColor: alpha('#2563eb', 0.04),
-                    },
-                  }}
-                >
-                  <ArrowBackIcon />
-                </IconButton>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                  <IconButton
+                    onClick={() => navigate('/')}
+                    sx={{
+                      color: '#64748b',
+                      border: '1px solid #e2e8f0',
+                      '&:hover': {
+                        color: '#2563eb',
+                        borderColor: '#2563eb',
+                        backgroundColor: alpha('#2563eb', 0.04),
+                      },
+                    }}
+                  >
+                    <ArrowBackIcon />
+                  </IconButton>
+                  <LanguageSwitcher sx={{ ml: 'auto' }} />
+                </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                   <Box sx={{ mr: 2 }}>
                     <WebMonitorLogo size={48} showPulse />
                   </Box>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontWeight: 700,
-                      color: '#334155',
-                    }}
-                  >
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: '#334155' }}>
                     WebMonitor
                   </Typography>
                 </Box>
@@ -290,7 +334,7 @@ const Register = () => {
                     letterSpacing: '-0.02em',
                   }}
                 >
-                  创建您的
+                  {content.heroTitleStart}
                   <br />
                   <Box
                     component="span"
@@ -301,7 +345,7 @@ const Register = () => {
                       backgroundClip: 'text',
                     }}
                   >
-                    监控账户
+                    {content.heroTitleAccent}
                   </Box>
                 </Typography>
                 <Typography
@@ -314,35 +358,36 @@ const Register = () => {
                     fontWeight: 400,
                   }}
                 >
-                  注册 WebMonitor，开始监控您关心的网页内容变化
+                  {content.heroSubtitle}
                 </Typography>
 
-                {/* Benefits List */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Typography variant="subtitle2" sx={{ color: '#475569', fontWeight: 600 }}>
-                    注册后您将获得：
+                    {content.benefitsTitle}
                   </Typography>
-                  {benefits.map((benefit, index) => (
-                    <motion.div
-                      key={benefit.text}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CheckCircleIcon sx={{ color: benefit.color, mr: 1.5, fontSize: 20 }} />
-                        <Typography variant="body2" sx={{ color: '#64748b' }}>
-                          {benefit.text}
-                        </Typography>
-                      </Box>
-                    </motion.div>
-                  ))}
+                  {content.benefits.map((benefit, index) => {
+                    const colors = ['#10b981', '#2563eb', '#f59e0b', '#8b5cf6'];
+                    return (
+                      <motion.div
+                        key={benefit}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CheckCircleIcon sx={{ color: colors[index], mr: 1.5, fontSize: 20 }} />
+                          <Typography variant="body2" sx={{ color: '#64748b' }}>
+                            {benefit}
+                          </Typography>
+                        </Box>
+                      </motion.div>
+                    );
+                  })}
                 </Box>
               </Box>
             </motion.div>
           </Grid>
 
-          {/* Right side - Register Form */}
           <Grid item xs={12} md={6}>
             <motion.div
               initial={{ opacity: 0, x: 30 }}
@@ -359,7 +404,6 @@ const Register = () => {
                   boxShadow: '0 25px 80px rgba(0, 0, 0, 0.06)',
                 }}
               >
-                {/* Form Header */}
                 <Box sx={{ mb: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <Avatar
@@ -373,27 +417,17 @@ const Register = () => {
                     >
                       <PersonAddIcon sx={{ fontSize: 22 }} />
                     </Avatar>
-                    <Typography
-                      component="h2"
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: '#334155',
-                      }}
-                    >
-                      创建账户
+                    <Typography component="h2" variant="h4" sx={{ fontWeight: 700, color: '#334155' }}>
+                      {content.formTitle}
                     </Typography>
                   </Box>
                   <Typography variant="body2" sx={{ color: '#64748b', ml: 7 }}>
-                    填写以下信息完成注册
+                    {content.formSubtitle}
                   </Typography>
                 </Box>
 
                 {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
                     <Alert
                       severity="error"
                       sx={{
@@ -414,10 +448,7 @@ const Register = () => {
                 )}
 
                 {success && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
                     <Alert
                       severity="success"
                       sx={{
@@ -443,7 +474,7 @@ const Register = () => {
                     required
                     fullWidth
                     id="username"
-                    label="用户名"
+                    label={content.username}
                     name="username"
                     autoComplete="username"
                     autoFocus
@@ -485,7 +516,7 @@ const Register = () => {
                     required
                     fullWidth
                     id="email"
-                    label="邮箱地址"
+                    label={content.email}
                     name="email"
                     autoComplete="email"
                     type="email"
@@ -528,7 +559,7 @@ const Register = () => {
                     required
                     fullWidth
                     name="password"
-                    label="密码"
+                    label={content.password}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     autoComplete="new-password"
@@ -580,21 +611,14 @@ const Register = () => {
                     }}
                   />
 
-                  {/* Password Strength Indicator */}
                   {formData.password && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                    >
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
                       <Box sx={{ mt: 1.5, mb: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                           <Typography variant="caption" sx={{ color: '#64748b', flexGrow: 1 }}>
-                            密码强度:
+                            {content.passwordStrength}:
                           </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{ color: getPasswordStrengthColor(), fontWeight: 600 }}
-                          >
+                          <Typography variant="caption" sx={{ color: getPasswordStrengthColor(), fontWeight: 600 }}>
                             {getPasswordStrengthText()}
                           </Typography>
                         </Box>
@@ -618,7 +642,7 @@ const Register = () => {
                     required
                     fullWidth
                     name="confirmPassword"
-                    label="确认密码"
+                    label={content.confirmPassword}
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     autoComplete="new-password"
@@ -670,10 +694,7 @@ const Register = () => {
                     }}
                   />
 
-                  <motion.div
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
+                  <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                     <Button
                       type="submit"
                       fullWidth
@@ -717,10 +738,10 @@ const Register = () => {
                               },
                             }}
                           />
-                          注册中...
+                          {content.submitting}
                         </Box>
                       ) : (
-                        '创建账户'
+                        content.submit
                       )}
                     </Button>
                   </motion.div>
@@ -728,7 +749,7 @@ const Register = () => {
 
                 <Box sx={{ mt: 4, width: '100%', textAlign: 'center' }}>
                   <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    已有账户？
+                    {content.existingAccount}
                     <Link
                       component="button"
                       variant="body2"
@@ -743,14 +764,14 @@ const Register = () => {
                         },
                       }}
                     >
-                      立即登录
+                      {content.loginNow}
                     </Link>
                   </Typography>
                 </Box>
 
                 <Box sx={{ mt: 3, width: '100%', textAlign: 'center' }}>
                   <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                    注册即表示您同意我们的服务条款和隐私政策
+                    {content.footer}
                   </Typography>
                 </Box>
               </Paper>

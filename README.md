@@ -1,6 +1,6 @@
 # WebMonitor
 
-<h3 align="center">网页内容变化监控平台</h3>
+<h3 align="center">Web content change monitoring platform</h3>
 
 <p align="center">
   <img src="./image/样例图片.png" alt="WebMonitor Dashboard" width="800">
@@ -8,104 +8,159 @@
 
 ---
 
-## 在线体验
+English | [简体中文](./README.zh-CN.md)
 
-**访问地址**: https://webmonitor.qfpqhyl.top/
+## Online demo
 
-> 由于后端服务部署在本人的 MacBook M4 Air 上，受限于设备性能，服务会随 Docker 启停而不定时可用。如需稳定使用，建议自行部署。
+**URL**: https://webmonitor.qfpqhyl.top/
 
----
-
-## 项目简介
-
-使用 Python 编写的网页内容自动监控及邮件通知工具，适用于检测网页指定区域内容变动并通过邮件提醒。
-
-### 主要功能
-
-- 监控网页内容变化（支持 XPath 精确定位）
-- 变化时发送邮件通知
-- 公开任务订阅机制
-- 可视化管理面板
-- Docker 一键部署
+> The backend service is currently hosted on the maintainer's MacBook M4 Air. Availability may vary depending on the local Docker runtime. For stable use, self-hosting is recommended.
 
 ---
 
-## 快速部署
+## Overview
 
-### Docker 部署（推荐）
+WebMonitor is a web content monitoring and email notification platform built with a React frontend and FastAPI backend. It can monitor specific areas of a page with XPath, detect content changes, and send email alerts automatically.
+
+## Key features
+
+- Monitor web page content changes with XPath-based targeting
+- Send email notifications when changes are detected
+- Support public tasks and user subscriptions
+- Provide a visual management dashboard for tasks, logs, users, and settings
+- Support Docker-based deployment
+- Support Chinese and English in the frontend UI
+
+---
+
+## Tech stack
+
+**Frontend**
+- React
+- Material UI
+- React Query
+- Axios
+- react-i18next
+
+**Backend**
+- FastAPI
+- SQLAlchemy
+- APScheduler
+- Selenium WebDriver
+
+**Deployment**
+- Docker
+- Docker Compose
+- SQLite by default, PostgreSQL supported in production
+
+---
+
+## Quick start
+
+### Docker deployment
 
 ```bash
-# 克隆项目
 git clone https://github.com/qfpqhyl/WebMonitor.git
 cd WebMonitor
-
-# 启动服务
 docker-compose up -d
-
-# 访问 http://localhost:3000
-# 默认账号: admin / admin123
 ```
 
-### 本地开发
+Then open:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API docs: http://localhost:8000/docs
+
+Default admin account:
+- Username: `admin`
+- Password: `admin123`
+
+### Local development
+
+Backend:
 
 ```bash
-# 后端
-cd backend && pip install -r requirements.txt && python main.py
+cd backend
+pip install -r requirements.txt
+python main.py
+```
 
-# 前端
-cd frontend && npm install && npm start
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm start
 ```
 
 ---
 
-## 配置说明
+## Environment configuration
 
-复制 `.env.example` 为 `.env` 并修改关键配置：
+Copy `.env.example` to `.env` and update the values as needed.
 
-| 配置项           | 说明                           | 默认值   |
-| ---------------- | ------------------------------ | -------- |
-| `SECRET_KEY`     | JWT 密钥（生产环境必须修改）   | -        |
-| `ADMIN_USERNAME` | 管理员用户名                   | admin    |
-| `ADMIN_PASSWORD` | 管理员密码                     | admin123 |
-| `SMTP_*`         | 邮件服务器配置（发送通知必需） | -        |
+### Core settings
 
-更多配置选项请查看 `.env.example` 文件。
+| Variable | Description | Default |
+| --- | --- | --- |
+| `SECRET_KEY` | JWT signing key. Change this in production. | - |
+| `ADMIN_USERNAME` | Default admin username | `admin` |
+| `ADMIN_PASSWORD` | Default admin password | `admin123` |
+| `ADMIN_EMAIL` | Default admin email | `admin@example.com` |
+| `FRONTEND_URL` | Frontend origin | `http://localhost:3000` |
+| `DATABASE_URL` | Database connection string | `sqlite:///./data/webmonitor.db` |
+| `SMTP_SERVER` | SMTP host for notifications | - |
+| `SMTP_PORT` | SMTP port | `465` |
+| `SMTP_USER` | SMTP username | - |
+| `SMTP_PASSWORD` | SMTP password or app password | - |
+| `DEFAULT_CHECK_INTERVAL` | Default monitoring interval in seconds | `300` |
 
----
-
-## 使用场景
-
-- 监控商品价格变化
-- 追踪网站公告更新
-- 竞品动态监控
-- 任何需要关注的网页内容
-
----
-
-## 系统要求
-
-- Python 3.9+
-- Node.js 16+
-- Docker（推荐）
+See `.env.example` for the current full configuration template.
 
 ---
 
-## 技术栈
+## Common use cases
 
-**后端**: FastAPI + Selenium + SQLite
-
-**前端**: React + Material-UI
-
-**部署**: Docker + Docker Compose
+- Track product price changes
+- Watch website announcements or policy updates
+- Monitor competitor pages
+- Follow any page region that matters to your workflow
 
 ---
 
-## 许可证
+## Project structure
 
-[CC BY-NC 4.0](LICENSE) - 仅供个人非商业使用
+```text
+backend/   FastAPI API, database models, services, scheduler
+frontend/  React application, pages, components, i18n resources
+image/     Screenshots and assets used in documentation
+```
+
+---
+
+## Architecture summary
+
+1. The React frontend calls the FastAPI backend through Axios.
+2. Authentication is handled with JWT.
+3. Monitoring tasks are stored in the database through SQLAlchemy.
+4. APScheduler triggers monitoring jobs in the background.
+5. Selenium loads and checks target pages.
+6. Email notifications are sent when content changes are detected.
+
+---
+
+## Documentation
+
+- Chinese documentation: [README.zh-CN.md](./README.zh-CN.md)
+- Backend API docs: `http://localhost:8000/docs`
+
+---
+
+## License
+
+[CC BY-NC 4.0](LICENSE) - Personal and non-commercial use only.
 
 ---
 
 <p align="center">
-  Made with  by 秋风飘起黄叶落
+  Made by 秋风飘起黄叶落
 </p>

@@ -7,8 +7,10 @@ import {
   alpha,
   LinearProgress,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const StatCard = ({ title, value, icon, color, subtitle, trend }) => {
+  const { t } = useTranslation();
 
   const getTrendColor = () => {
     if (trend > 0) return 'success.main';
@@ -79,7 +81,7 @@ const StatCard = ({ title, value, icon, color, subtitle, trend }) => {
                 {getTrendText()}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                vs 上周
+                {t('common.vsLastWeek')}
               </Typography>
             </Box>
           )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -38,8 +38,12 @@ import {
   Settings as SettingsIcon,
   Monitor as MonitorIcon,
   Link as LinkIcon,
-  } from '@mui/icons-material';
+} from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+
+import { formatDateTime } from '../utils/date';
+import { isChineseLanguage } from '../utils/i18n';
 
 const MySubscriptions = () => {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -55,38 +59,126 @@ const MySubscriptions = () => {
     message: '',
     severity: 'success',
   });
+  const { i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
 
-  // 获取订阅列表
-  const fetchSubscriptions = async () => {
+  const content = isChinese ? {
+    title: '我的订阅',
+    subtitle: '管理您订阅的公开任务和通知设置',
+    totalSubscriptions: '总订阅数',
+    notificationsEnabled: '启用通知',
+    notificationsDisabled: '停用通知',
+    emailConfigs: '邮箱配置',
+    guideTitle: '订阅管理说明',
+    guideLine1: '启用通知后，当订阅的任务内容发生变化时将收到邮件通知',
+    guideLine2: '可以为每个订阅单独配置邮箱通知设置',
+    guideLine3: '停用通知后将不再收到邮件，但订阅记录会保留',
+    listTitle: '我的订阅列表',
+    noSubscriptions: '暂无订阅任务',
+    noSubscriptionsSubtitle: '前往“公开任务市场”订阅感兴趣的任务',
+    browsePublicTasks: '浏览公开任务',
+    taskInfo: '任务信息',
+    taskUrl: '任务 URL',
+    notificationStatus: '通知状态',
+    emailConfig: '邮箱配置',
+    subscribedAt: '订阅时间',
+    actions: '操作',
+    createdBy: '创建者',
+    enabled: '已启用',
+    disabled: '已停用',
+    unknownConfig: '未知配置',
+    defaultConfig: '默认配置',
+    editSubscription: '编辑订阅',
+    deleteSubscription: '取消订阅',
+    editDialogTitle: '编辑订阅设置',
+    taskLabel: '任务',
+    enableEmailNotifications: '启用邮件通知',
+    emailConfigLabel: '邮箱配置',
+    useDefaultConfig: '使用默认配置',
+    cancel: '取消',
+    saveSettings: '保存设置',
+    fetchSubscriptionsFailed: '获取订阅列表失败',
+    updateSuccess: '订阅更新成功',
+    updateFailed: '更新订阅失败',
+    deleteConfirm: '确定要取消这个订阅吗？',
+    deleteSuccess: '订阅取消成功',
+    deleteFailed: '取消订阅失败',
+    unknownError: '未知错误',
+  } : {
+    title: 'My subscriptions',
+    subtitle: 'Manage your subscribed public tasks and notification settings.',
+    totalSubscriptions: 'Total subscriptions',
+    notificationsEnabled: 'Notifications enabled',
+    notificationsDisabled: 'Notifications disabled',
+    emailConfigs: 'Email configs',
+    guideTitle: 'Subscription guide',
+    guideLine1: 'When notifications are enabled, you will receive an email when subscribed task content changes.',
+    guideLine2: 'You can choose a separate email configuration for each subscription.',
+    guideLine3: 'When notifications are disabled, emails stop but the subscription record remains.',
+    listTitle: 'My subscriptions',
+    noSubscriptions: 'No subscriptions yet',
+    noSubscriptionsSubtitle: 'Visit the public task marketplace to subscribe to tasks you care about.',
+    browsePublicTasks: 'Browse public tasks',
+    taskInfo: 'Task info',
+    taskUrl: 'Task URL',
+    notificationStatus: 'Notification status',
+    emailConfig: 'Email config',
+    subscribedAt: 'Subscribed at',
+    actions: 'Actions',
+    createdBy: 'Created by',
+    enabled: 'Enabled',
+    disabled: 'Disabled',
+    unknownConfig: 'Unknown config',
+    defaultConfig: 'Default config',
+    editSubscription: 'Edit subscription',
+    deleteSubscription: 'Cancel subscription',
+    editDialogTitle: 'Edit subscription settings',
+    taskLabel: 'Task',
+    enableEmailNotifications: 'Enable email notifications',
+    emailConfigLabel: 'Email config',
+    useDefaultConfig: 'Use default config',
+    cancel: 'Cancel',
+    saveSettings: 'Save settings',
+    fetchSubscriptionsFailed: 'Failed to fetch subscriptions',
+    updateSuccess: 'Subscription updated successfully',
+    updateFailed: 'Failed to update subscription',
+    deleteConfirm: 'Are you sure you want to cancel this subscription?',
+    deleteSuccess: 'Subscription cancelled successfully',
+    deleteFailed: 'Failed to cancel subscription',
+    unknownError: 'Unknown error',
+  };
+
+  const getErrorMessage = useCallback((error) => {
+    return error.response?.data?.detail || content.unknownError;
+  }, [content.unknownError]);
+
+  const fetchSubscriptions = useCallback(async () => {
     try {
       const response = await axios.get('/api/subscriptions');
       setSubscriptions(response.data);
     } catch (error) {
-      console.error('获取订阅列表失败:', error);
       setSnackbar({
         open: true,
-        message: '获取订阅列表失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.fetchSubscriptionsFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
-  };
+  }, [content.fetchSubscriptionsFailed, getErrorMessage]);
 
-  // 获取邮箱配置列表
-  const fetchEmailConfigs = async () => {
+  const fetchEmailConfigs = useCallback(async () => {
     try {
       const response = await axios.get('/api/email-configs');
       setEmailConfigs(response.data);
     } catch (error) {
-      console.error('获取邮箱配置失败:', error);
+      console.error('Failed to fetch email configs:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSubscriptions();
     fetchEmailConfigs();
-  }, []);
+  }, [fetchSubscriptions, fetchEmailConfigs]);
 
-  // 打开编辑对话框
   const handleOpenEditDialog = (subscription) => {
     setEditingSubscription(subscription);
     setFormData({
@@ -96,7 +188,6 @@ const MySubscriptions = () => {
     setEditDialogOpen(true);
   };
 
-  // 关闭编辑对话框
   const handleCloseEditDialog = () => {
     setEditDialogOpen(false);
     setEditingSubscription(null);
@@ -106,62 +197,57 @@ const MySubscriptions = () => {
     });
   };
 
-  // 更新订阅
   const handleUpdateSubscription = async () => {
     try {
       await axios.put(`/api/subscriptions/${editingSubscription.id}`, formData);
 
       setSnackbar({
         open: true,
-        message: '订阅更新成功',
+        message: content.updateSuccess,
         severity: 'success',
       });
 
       handleCloseEditDialog();
       fetchSubscriptions();
     } catch (error) {
-      console.error('更新订阅失败:', error);
       setSnackbar({
         open: true,
-        message: '更新订阅失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.updateFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
   };
 
-  // 取消订阅
   const handleDeleteSubscription = async (subscriptionId) => {
-    if (window.confirm('确定要取消这个订阅吗？')) {
-      try {
-        await axios.delete(`/api/subscriptions/${subscriptionId}`);
+    if (!window.confirm(content.deleteConfirm)) {
+      return;
+    }
 
-        setSnackbar({
-          open: true,
-          message: '订阅取消成功',
-          severity: 'success',
-        });
+    try {
+      await axios.delete(`/api/subscriptions/${subscriptionId}`);
 
-        fetchSubscriptions();
-      } catch (error) {
-        console.error('取消订阅失败:', error);
-        setSnackbar({
-          open: true,
-          message: '取消订阅失败: ' + (error.response?.data?.detail || '未知错误'),
-          severity: 'error',
-        });
-      }
+      setSnackbar({
+        open: true,
+        message: content.deleteSuccess,
+        severity: 'success',
+      });
+
+      fetchSubscriptions();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: `${content.deleteFailed}: ${getErrorMessage(error)}`,
+        severity: 'error',
+      });
     }
   };
 
-  // 关闭提示
   const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+    setSnackbar((previous) => ({ ...previous, open: false }));
   };
 
-  
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -182,15 +268,14 @@ const MySubscriptions = () => {
               mb: 1,
             }}
           >
-            我的订阅
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            管理您订阅的公开任务和通知设置
+            {content.subtitle}
           </Typography>
         </Box>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -234,7 +319,7 @@ const MySubscriptions = () => {
                   {subscriptions.length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  总订阅数
+                  {content.totalSubscriptions}
                 </Typography>
               </Box>
             </CardContent>
@@ -279,10 +364,10 @@ const MySubscriptions = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {subscriptions.filter(sub => sub.is_active).length}
+                  {subscriptions.filter((subscription) => subscription.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  启用通知
+                  {content.notificationsEnabled}
                 </Typography>
               </Box>
             </CardContent>
@@ -327,10 +412,10 @@ const MySubscriptions = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {subscriptions.filter(sub => !sub.is_active).length}
+                  {subscriptions.filter((subscription) => !subscription.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  停用通知
+                  {content.notificationsDisabled}
                 </Typography>
               </Box>
             </CardContent>
@@ -378,7 +463,7 @@ const MySubscriptions = () => {
                   {emailConfigs.length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  邮箱配置
+                  {content.emailConfigs}
                 </Typography>
               </Box>
             </CardContent>
@@ -386,28 +471,26 @@ const MySubscriptions = () => {
         </Grid>
       </Grid>
 
-      {/* 订阅管理说明卡片 */}
       <Card sx={{ mb: 4, backgroundColor: alpha('#1976d2', 0.04), border: `1px solid ${alpha('#1976d2', 0.12)}` }}>
         <CardContent sx={{ py: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
             <SettingsIcon sx={{ fontSize: 20, color: '#1976d2' }} />
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
-              订阅管理说明
+              {content.guideTitle}
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 启用通知后，当订阅的任务内容发生变化时将收到邮件通知
+            • {content.guideLine1}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 可以为每个订阅单独配置邮箱通知设置
+            • {content.guideLine2}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 停用通知后将不再收到邮件，但订阅记录会保留
+            • {content.guideLine3}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* Subscriptions Table */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -417,7 +500,7 @@ const MySubscriptions = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            我的订阅列表
+            {content.listTitle}
           </Typography>
         </Box>
         {subscriptions.length === 0 ? (
@@ -435,10 +518,10 @@ const MySubscriptions = () => {
               <SubscriptionsIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无订阅任务
+              {content.noSubscriptions}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              前往"公开任务市场"订阅感兴趣的任务
+              {content.noSubscriptionsSubtitle}
             </Typography>
             <Button
               variant="contained"
@@ -450,7 +533,7 @@ const MySubscriptions = () => {
                 fontWeight: 'bold',
               }}
             >
-              浏览公开任务
+              {content.browsePublicTasks}
             </Button>
           </Box>
         ) : (
@@ -458,12 +541,12 @@ const MySubscriptions = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(25, 118, 210, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>任务信息</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>任务URL</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>通知状态</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>邮箱配置</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>订阅时间</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.taskInfo}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.taskUrl}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.notificationStatus}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.emailConfig}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.subscribedAt}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -495,7 +578,7 @@ const MySubscriptions = () => {
                             {subscription.task_name}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            创建者：{subscription.task_owner}
+                            {content.createdBy}: {subscription.task_owner}
                           </Typography>
                         </Box>
                       </Box>
@@ -522,7 +605,7 @@ const MySubscriptions = () => {
                     <TableCell>
                       <Chip
                         size="small"
-                        label={subscription.is_active ? '已启用' : '已停用'}
+                        label={subscription.is_active ? content.enabled : content.disabled}
                         color={subscription.is_active ? 'success' : 'default'}
                         icon={subscription.is_active ? <NotificationsActiveIcon /> : <NotificationsOffIcon />}
                         variant="outlined"
@@ -533,20 +616,19 @@ const MySubscriptions = () => {
                         <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">
                           {subscription.email_config_id
-                            ? emailConfigs.find(c => c.id === subscription.email_config_id)?.name || '未知配置'
-                            : '默认配置'
-                          }
+                            ? emailConfigs.find((config) => config.id === subscription.email_config_id)?.name || content.unknownConfig
+                            : content.defaultConfig}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(subscription.created_at).toLocaleString()}
+                        {formatDateTime(subscription.created_at, i18n.language)}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="编辑订阅">
+                        <Tooltip title={content.editSubscription}>
                           <IconButton
                             size="small"
                             onClick={() => handleOpenEditDialog(subscription)}
@@ -558,7 +640,7 @@ const MySubscriptions = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="取消订阅">
+                        <Tooltip title={content.deleteSubscription}>
                           <IconButton
                             size="small"
                             onClick={() => handleDeleteSubscription(subscription.id)}
@@ -580,13 +662,12 @@ const MySubscriptions = () => {
         )}
       </Paper>
 
-      {/* 编辑订阅对话框 */}
       <Dialog open={editDialogOpen} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <SettingsIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             <Typography variant="h5" component="div">
-              编辑订阅设置
+              {content.editDialogTitle}
             </Typography>
           </Box>
         </DialogTitle>
@@ -594,18 +675,18 @@ const MySubscriptions = () => {
           {editingSubscription && (
             <Box>
               <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
-                任务：{editingSubscription.task_name}
+                {content.taskLabel}: {editingSubscription.task_name}
               </Typography>
 
               <FormControlLabel
                 control={
                   <Switch
                     checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    onChange={(event) => setFormData({ ...formData, is_active: event.target.checked })}
                     color="primary"
                   />
                 }
-                label="启用邮件通知"
+                label={content.enableEmailNotifications}
                 sx={{ mb: 2 }}
               />
 
@@ -613,13 +694,13 @@ const MySubscriptions = () => {
                 <TextField
                   select
                   fullWidth
-                  label="邮箱配置"
+                  label={content.emailConfigLabel}
                   value={formData.email_config_id || ''}
-                  onChange={(e) => setFormData({ ...formData, email_config_id: e.target.value || null })}
+                  onChange={(event) => setFormData({ ...formData, email_config_id: event.target.value || null })}
                   sx={{ mb: 2 }}
                   SelectProps={{ native: true }}
                 >
-                  <option value="">使用默认配置</option>
+                  <option value="">{content.useDefaultConfig}</option>
                   {emailConfigs.map((config) => (
                     <option key={config.id} value={config.id}>
                       {config.name} ({config.smtp_user})
@@ -632,15 +713,14 @@ const MySubscriptions = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={handleCloseEditDialog} color="inherit">
-            取消
+            {content.cancel}
           </Button>
           <Button onClick={handleUpdateSubscription} variant="contained">
-            保存设置
+            {content.saveSettings}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* 提示消息 */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

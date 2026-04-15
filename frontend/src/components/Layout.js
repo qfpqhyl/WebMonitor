@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
@@ -36,48 +36,13 @@ import {
   Public as PublicIcon,
   BookmarkBorder as SubscriptionsIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+
 import { useAuth } from '../contexts/AuthContext';
+import LanguageSwitcher from './LanguageSwitcher';
+import { isChineseLanguage } from '../utils/i18n';
 
 const drawerWidth = 280;
-
-const menuItems = [
-  {
-    text: '仪表板',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-    description: '监控概览',
-  },
-  {
-    text: '监控任务',
-    icon: <TaskIcon />,
-    path: '/tasks',
-    description: '管理任务',
-  },
-  {
-    text: '公开任务',
-    icon: <PublicIcon />,
-    path: '/public-tasks',
-    description: '任务市场',
-  },
-  {
-    text: '我的订阅',
-    icon: <SubscriptionsIcon />,
-    path: '/my-subscriptions',
-    description: '订阅管理',
-  },
-  {
-    text: '监控日志',
-    icon: <LogIcon />,
-    path: '/logs',
-    description: '查看日志',
-  },
-  {
-    text: '邮件配置',
-    icon: <MailIcon />,
-    path: '/email-config',
-    description: '通知设置',
-  },
-];
 
 function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -85,23 +50,72 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAdmin } = useAuth();
+  const { t, i18n } = useTranslation();
 
-  // 动态生成菜单项（管理员显示用户管理和黑名单管理）
-  const dynamicMenuItems = isAdmin() ? [
-    ...menuItems,
+  const isChinese = isChineseLanguage(i18n.language);
+
+  const baseMenuItems = useMemo(() => ([
     {
-      text: '黑名单管理',
-      icon: <SecurityIcon />,
-      path: '/blacklist-management',
-      description: '域名黑名单',
+      text: isChinese ? '仪表板' : 'Dashboard',
+      icon: <DashboardIcon />,
+      path: '/dashboard',
+      description: isChinese ? '监控概览' : 'Monitoring overview',
     },
     {
-      text: '用户管理',
-      icon: <PeopleIcon />,
-      path: '/user-management',
-      description: '用户管理',
+      text: isChinese ? '监控任务' : 'Monitor tasks',
+      icon: <TaskIcon />,
+      path: '/tasks',
+      description: isChinese ? '管理任务' : 'Manage tasks',
     },
-  ] : menuItems;
+    {
+      text: isChinese ? '公开任务' : 'Public tasks',
+      icon: <PublicIcon />,
+      path: '/public-tasks',
+      description: isChinese ? '任务市场' : 'Task marketplace',
+    },
+    {
+      text: isChinese ? '我的订阅' : 'My subscriptions',
+      icon: <SubscriptionsIcon />,
+      path: '/my-subscriptions',
+      description: isChinese ? '订阅管理' : 'Manage subscriptions',
+    },
+    {
+      text: isChinese ? '监控日志' : 'Monitor logs',
+      icon: <LogIcon />,
+      path: '/logs',
+      description: isChinese ? '查看日志' : 'View logs',
+    },
+    {
+      text: isChinese ? '邮件配置' : 'Email configuration',
+      icon: <MailIcon />,
+      path: '/email-config',
+      description: isChinese ? '通知设置' : 'Notification settings',
+    },
+  ]), [isChinese]);
+
+  const dynamicMenuItems = useMemo(() => {
+    if (!isAdmin()) {
+      return baseMenuItems;
+    }
+
+    return [
+      ...baseMenuItems,
+      {
+        text: isChinese ? '黑名单管理' : 'Blacklist management',
+        icon: <SecurityIcon />,
+        path: '/blacklist-management',
+        description: isChinese ? '域名黑名单' : 'Blocked domains',
+      },
+      {
+        text: isChinese ? '用户管理' : 'User management',
+        icon: <PeopleIcon />,
+        path: '/user-management',
+        description: isChinese ? '用户管理' : 'Manage users',
+      },
+    ];
+  }, [baseMenuItems, isAdmin, isChinese]);
+
+  const currentMenuItem = dynamicMenuItems.find((item) => item.path === location.pathname);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -127,7 +141,6 @@ function Layout({ children }) {
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo Section */}
       <Box sx={{ p: 3, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <Avatar
@@ -155,13 +168,16 @@ function Layout({ children }) {
               WebMonitor
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              网页监控系统
+              {isChinese ? '网页监控系统' : 'Web monitoring platform'}
             </Typography>
           </Box>
         </Box>
       </Box>
 
-      {/* Navigation */}
+      <Box sx={{ px: 2, pt: 2, display: 'flex', justifyContent: 'center' }}>
+        <LanguageSwitcher sx={{ width: 'fit-content' }} />
+      </Box>
+
       <Box sx={{ flexGrow: 1, py: 2 }}>
         <List sx={{ p: 0 }}>
           {dynamicMenuItems.map((item) => {
@@ -230,7 +246,6 @@ function Layout({ children }) {
         </List>
       </Box>
 
-      {/* User Info Section */}
       <Box sx={{ p: 2, borderTop: '1px solid rgba(0,0,0,0.06)', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', p: 1.5, borderRadius: 2, backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>
           <Avatar
@@ -246,7 +261,7 @@ function Layout({ children }) {
           </Avatar>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography variant="body2" sx={{ fontWeight: 600, truncate: true }}>
-              {user?.username || '用户'}
+              {user?.username || t('common.user')}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ truncate: true }}>
               {user?.email || ''}
@@ -255,7 +270,7 @@ function Layout({ children }) {
           {isAdmin() && (
             <Chip
               size="small"
-              label="管理员"
+              label={t('common.admin')}
               sx={{
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 color: '#10b981',
@@ -307,22 +322,25 @@ function Layout({ children }) {
                   background: 'linear-gradient(45deg, #10b981 30%, #059669 90%)',
                 }}
               >
-                {dynamicMenuItems.find(item => item.path === location.pathname)?.icon || <DashboardIcon />}
+                {currentMenuItem?.icon || <DashboardIcon />}
               </Avatar>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-                  {dynamicMenuItems.find(item => item.path === location.pathname)?.text || 'WebMonitor'}
+                  {currentMenuItem?.text || 'WebMonitor'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {dynamicMenuItems.find(item => item.path === location.pathname)?.description || ''}
+                  {currentMenuItem?.description || ''}
                 </Typography>
               </Box>
             </Box>
           </Box>
 
-          {/* Quick Actions & User Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title="通知">
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <LanguageSwitcher sx={{ mr: 0.5 }} />
+            </Box>
+
+            <Tooltip title={t('common.notifications')}>
               <IconButton
                 sx={{
                   color: 'rgba(0, 0, 0, 0.6)',
@@ -335,7 +353,7 @@ function Layout({ children }) {
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="用户菜单">
+            <Tooltip title={t('common.userMenu')}>
               <IconButton
                 size="small"
                 aria-label="account of current user"
@@ -391,7 +409,7 @@ function Layout({ children }) {
                 <AccountIcon sx={{ mr: 2, color: '#2563eb' }} />
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {user?.username || '用户'}
+                    {user?.username || t('common.user')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {user?.email || ''}
@@ -404,14 +422,14 @@ function Layout({ children }) {
                 sx={{ display: isAdmin() ? 'flex' : 'none', py: 1.5, '&:hover': { backgroundColor: 'rgba(16, 185, 129, 0.1)' } }}
               >
                 <PeopleIcon sx={{ mr: 2, color: '#10b981' }} />
-                用户管理
+                {isChinese ? '用户管理' : 'User management'}
               </MenuItem>
               <MenuItem
                 onClick={handleLogout}
                 sx={{ py: 1.5, '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'error.main' } }}
               >
                 <LogoutIcon sx={{ mr: 2 }} />
-                退出登录
+                {t('common.logout')}
               </MenuItem>
             </Menu>
           </Box>

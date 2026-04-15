@@ -12,8 +12,10 @@
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
     "framer-motion": "^12.23.26",
+    "i18next": "^23.16.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-i18next": "^15.4.1",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.20.1",
     "react-scripts": "5.0.1",
@@ -42,6 +44,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:8000"
+  }
 }

@@ -42,7 +42,10 @@ import {
   Code as CodeIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+
+import { isChineseLanguage } from '../utils/i18n';
 
 const UserManagement = () => {
   const [open, setOpen] = useState(false);
@@ -57,10 +60,111 @@ const UserManagement = () => {
     is_admin: false,
     max_subscriptions: 10,
   });
+  const { t, i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
+
+  const content = isChinese ? {
+    title: '用户管理',
+    subtitle: '管理系统用户账户和权限',
+    createUser: '创建新用户',
+    totalUsers: '总用户数',
+    activeUsers: '活跃用户',
+    admins: '管理员',
+    securityLevel: '安全级别',
+    high: '高',
+    listTitle: '用户列表',
+    guideText: '管理员可以创建、编辑和删除用户账户。注意：不能删除自己的账户。',
+    noUsers: '暂无用户',
+    noUsersSubtitle: '创建第一个用户开始使用系统',
+    createFirstUser: '创建第一个用户',
+    userInfo: '用户信息',
+    emailAddress: '邮箱地址',
+    rolePermission: '角色权限',
+    subscriptionLimit: '订阅限制',
+    accountStatus: '账户状态',
+    actions: '操作',
+    fullNameNotSet: '未设置全名',
+    admin: '管理员',
+    regularUser: '普通用户',
+    subscriptionUnit: '个',
+    enabled: '启用',
+    disabled: '禁用',
+    editUser: '编辑用户',
+    deleteUser: '删除用户',
+    deleteConfirm: '确定要删除这个用户吗？',
+    loadFailed: '加载用户列表失败',
+    editDialogTitle: '编辑用户',
+    createDialogTitle: '创建新用户',
+    editDialogSubtitle: '修改用户信息和权限',
+    createDialogSubtitle: '添加新的系统用户',
+    username: '用户名',
+    fullName: '全名',
+    password: '密码',
+    passwordHelperEdit: '留空则不修改密码',
+    passwordHelperCreate: '请设置安全密码',
+    maxSubscriptions: '最大订阅数量',
+    maxSubscriptionsHelper: '该用户最多可以订阅的公开任务数量',
+    adminPermission: '管理员权限',
+    adminPermissionHelper: '拥有系统管理权限',
+    activeAccount: '启用账户',
+    activeAccountHelper: '允许用户登录系统',
+    cancel: '取消',
+    updateUser: '更新用户',
+    createUserAction: '创建用户',
+    togglePasswordVisibility: '切换密码可见性',
+  } : {
+    title: 'User management',
+    subtitle: 'Manage user accounts and permissions for the system.',
+    createUser: 'Create user',
+    totalUsers: 'Total users',
+    activeUsers: 'Active users',
+    admins: 'Admins',
+    securityLevel: 'Security level',
+    high: 'High',
+    listTitle: 'User list',
+    guideText: 'Admins can create, edit, and delete user accounts. Note: you cannot delete your own account.',
+    noUsers: 'No users yet',
+    noUsersSubtitle: 'Create the first user to get started.',
+    createFirstUser: 'Create first user',
+    userInfo: 'User info',
+    emailAddress: 'Email address',
+    rolePermission: 'Role',
+    subscriptionLimit: 'Subscription limit',
+    accountStatus: 'Account status',
+    actions: 'Actions',
+    fullNameNotSet: 'Full name not set',
+    admin: 'Admin',
+    regularUser: 'Regular user',
+    subscriptionUnit: '',
+    enabled: 'Enabled',
+    disabled: 'Disabled',
+    editUser: 'Edit user',
+    deleteUser: 'Delete user',
+    deleteConfirm: 'Are you sure you want to delete this user?',
+    loadFailed: 'Failed to load users',
+    editDialogTitle: 'Edit user',
+    createDialogTitle: 'Create user',
+    editDialogSubtitle: 'Update user details and permissions',
+    createDialogSubtitle: 'Add a new system user',
+    username: 'Username',
+    fullName: 'Full name',
+    password: 'Password',
+    passwordHelperEdit: 'Leave blank to keep the current password',
+    passwordHelperCreate: 'Set a secure password',
+    maxSubscriptions: 'Max subscriptions',
+    maxSubscriptionsHelper: 'Maximum number of public tasks this user can subscribe to',
+    adminPermission: 'Admin permission',
+    adminPermissionHelper: 'Gives access to system management features',
+    activeAccount: 'Active account',
+    activeAccountHelper: 'Allows the user to sign in',
+    cancel: 'Cancel',
+    updateUser: 'Update user',
+    createUserAction: 'Create user',
+    togglePasswordVisibility: 'Toggle password visibility',
+  };
 
   const queryClient = useQueryClient();
 
-  // 获取用户列表
   const { data: users = [], error } = useQuery(
     'users',
     async () => {
@@ -69,7 +173,6 @@ const UserManagement = () => {
     }
   );
 
-  // 获取当前用户信息
   const { data: currentUser } = useQuery(
     'currentUser',
     async () => {
@@ -78,7 +181,6 @@ const UserManagement = () => {
     }
   );
 
-  // 创建用户
   const createMutation = useMutation(
     async (userData) => {
       const response = await axios.post('/api/auth/register', userData);
@@ -92,7 +194,6 @@ const UserManagement = () => {
     }
   );
 
-  // 更新用户
   const updateMutation = useMutation(
     async ({ id, userData }) => {
       const response = await axios.put(`/api/auth/users/${id}`, userData);
@@ -103,13 +204,12 @@ const UserManagement = () => {
         queryClient.invalidateQueries('users');
         handleClose();
       },
-      onError: (error) => {
-        console.error('Update user error:', error.response?.data || error.message);
+      onError: (mutationError) => {
+        console.error('Update user error:', mutationError.response?.data || mutationError.message);
       },
     }
   );
 
-  // 删除用户
   const deleteMutation = useMutation(
     async (id) => {
       await axios.delete(`/api/auth/users/${id}`);
@@ -150,27 +250,23 @@ const UserManagement = () => {
 
   const handleClose = () => {
     setOpen(false);
-    // 延迟清除编辑状态，避免可访问性问题
     setTimeout(() => {
       setEditingUser(null);
     }, 100);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-    // 清理表单数据，移除空字符串和未更改的值
     const cleanFormData = { ...formData };
 
-    // 如果是编辑模式且密码为空或null，则不发送密码字段
     if (editingUser && (!cleanFormData.password || cleanFormData.password === '')) {
       delete cleanFormData.password;
     }
 
-    // 移除所有null和undefined值，只保留有意义的值
-    Object.keys(cleanFormData).forEach(key => {
+    Object.keys(cleanFormData).forEach((key) => {
       if (cleanFormData[key] === null || cleanFormData[key] === undefined || cleanFormData[key] === '') {
-        if (key !== 'password') { // 密码字段已经在上面处理
+        if (key !== 'password') {
           delete cleanFormData[key];
         }
       }
@@ -186,18 +282,17 @@ const UserManagement = () => {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('确定要删除这个用户吗？')) {
+    if (window.confirm(content.deleteConfirm)) {
       deleteMutation.mutate(id);
     }
   };
 
   if (error) {
-    return <Alert severity="error">加载用户列表失败: {error.message}</Alert>;
+    return <Alert severity="error">{content.loadFailed}: {error.message}</Alert>;
   }
 
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -218,10 +313,10 @@ const UserManagement = () => {
               mb: 1,
             }}
           >
-            用户管理
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            管理系统用户账户和权限
+            {content.subtitle}
           </Typography>
         </Box>
         <Button
@@ -243,11 +338,10 @@ const UserManagement = () => {
             },
           }}
         >
-          创建新用户
+          {content.createUser}
         </Button>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -276,7 +370,7 @@ const UserManagement = () => {
                     {users.length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    总用户数
+                    {content.totalUsers}
                   </Typography>
                 </Box>
               </Box>
@@ -307,10 +401,10 @@ const UserManagement = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {users.filter(user => user.is_active).length}
+                    {users.filter((user) => user.is_active).length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    活跃用户
+                    {content.activeUsers}
                   </Typography>
                 </Box>
               </Box>
@@ -341,10 +435,10 @@ const UserManagement = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {users.filter(user => user.is_admin).length}
+                    {users.filter((user) => user.is_admin).length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    管理员
+                    {content.admins}
                   </Typography>
                 </Box>
               </Box>
@@ -375,10 +469,10 @@ const UserManagement = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    安全级别
+                    {content.securityLevel}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    高
+                    {content.high}
                   </Typography>
                 </Box>
               </Box>
@@ -387,7 +481,6 @@ const UserManagement = () => {
         </Grid>
       </Grid>
 
-      {/* Users Table */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -397,7 +490,7 @@ const UserManagement = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            用户列表
+            {content.listTitle}
           </Typography>
         </Box>
 
@@ -405,7 +498,7 @@ const UserManagement = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <SecurityIcon sx={{ mr: 2, color: '#a78bfa' }} />
             <Typography variant="body2">
-              管理员可以创建、编辑和删除用户账户。注意：不能删除自己的账户。
+              {content.guideText}
             </Typography>
           </Box>
         </Box>
@@ -425,10 +518,10 @@ const UserManagement = () => {
               <PeopleIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无用户
+              {content.noUsers}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              创建第一个用户开始使用系统
+              {content.noUsersSubtitle}
             </Typography>
             <Button
               variant="contained"
@@ -440,7 +533,7 @@ const UserManagement = () => {
                 fontWeight: 'bold',
               }}
             >
-              创建第一个用户
+              {content.createFirstUser}
             </Button>
           </Box>
         ) : (
@@ -448,12 +541,12 @@ const UserManagement = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(167, 139, 250, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>用户信息</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>邮箱地址</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>角色权限</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>订阅限制</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>账户状态</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.userInfo}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.emailAddress}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.rolePermission}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.subscriptionLimit}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.accountStatus}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -485,7 +578,7 @@ const UserManagement = () => {
                             {user.username}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {user.full_name || '未设置全名'}
+                            {user.full_name || content.fullNameNotSet}
                           </Typography>
                         </Box>
                       </Box>
@@ -502,14 +595,14 @@ const UserManagement = () => {
                       <Chip
                         size="small"
                         icon={user.is_admin ? <AdminIcon /> : <PersonIcon />}
-                        label={user.is_admin ? '管理员' : '普通用户'}
+                        label={user.is_admin ? content.admin : content.regularUser}
                         color={user.is_admin ? 'warning' : 'primary'}
                       />
                     </TableCell>
                     <TableCell>
                       <Chip
                         size="small"
-                        label={`${user.max_subscriptions || 10} 个`}
+                        label={isChinese ? `${user.max_subscriptions || 10} ${content.subscriptionUnit}` : `${user.max_subscriptions || 10}`}
                         color="info"
                         variant="outlined"
                       />
@@ -518,13 +611,13 @@ const UserManagement = () => {
                       <Chip
                         size="small"
                         icon={user.is_active ? <SuccessIcon /> : <ErrorIcon />}
-                        label={user.is_active ? '启用' : '禁用'}
+                        label={user.is_active ? content.enabled : content.disabled}
                         color={user.is_active ? 'success' : 'error'}
                       />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="编辑用户">
+                        <Tooltip title={content.editUser}>
                           <IconButton
                             size="small"
                             onClick={() => handleOpen(user)}
@@ -536,7 +629,7 @@ const UserManagement = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="删除用户">
+                        <Tooltip title={content.deleteUser}>
                           <IconButton
                             size="small"
                             onClick={() => handleDelete(user.id)}
@@ -559,7 +652,7 @@ const UserManagement = () => {
           </TableContainer>
         )}
       </Paper>
-      {/* User Dialog */}
+
       <Dialog
         open={open}
         onClose={handleClose}
@@ -597,10 +690,10 @@ const UserManagement = () => {
             </Avatar>
             <Box>
               <Typography variant="h6" component="span">
-                {editingUser ? '编辑用户' : '创建新用户'}
+                {editingUser ? content.editDialogTitle : content.createDialogTitle}
               </Typography>
               <Typography variant="body2" component="div" sx={{ opacity: 0.9 }}>
-                {editingUser ? '修改用户信息和权限' : '添加新的系统用户'}
+                {editingUser ? content.editDialogSubtitle : content.createDialogSubtitle}
               </Typography>
             </Box>
           </Box>
@@ -610,10 +703,10 @@ const UserManagement = () => {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
-                  label="用户名"
+                  label={content.username}
                   fullWidth
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(event) => setFormData({ ...formData, username: event.target.value })}
                   required
                   disabled={!!editingUser}
                   InputProps={{
@@ -638,10 +731,10 @@ const UserManagement = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="全名"
+                  label={content.fullName}
                   fullWidth
                   value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  onChange={(event) => setFormData({ ...formData, full_name: event.target.value })}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -664,11 +757,11 @@ const UserManagement = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="邮箱地址"
+                  label={content.emailAddress}
                   fullWidth
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(event) => setFormData({ ...formData, email: event.target.value })}
                   required
                   InputProps={{
                     startAdornment: (
@@ -692,13 +785,13 @@ const UserManagement = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="密码"
+                  label={content.password}
                   type={showPassword ? 'text' : 'password'}
                   fullWidth
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(event) => setFormData({ ...formData, password: event.target.value })}
                   required={!editingUser}
-                  helperText={editingUser ? "留空则不修改密码" : "请设置安全密码"}
+                  helperText={editingUser ? content.passwordHelperEdit : content.passwordHelperCreate}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -708,7 +801,7 @@ const UserManagement = () => {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          aria-label="toggle password visibility"
+                          aria-label={content.togglePasswordVisibility}
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
@@ -733,13 +826,13 @@ const UserManagement = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="最大订阅数量"
+                  label={content.maxSubscriptions}
                   type="number"
                   fullWidth
                   value={formData.max_subscriptions}
-                  onChange={(e) => setFormData({ ...formData, max_subscriptions: parseInt(e.target.value) || 10 })}
+                  onChange={(event) => setFormData({ ...formData, max_subscriptions: parseInt(event.target.value, 10) || 10 })}
                   inputProps={{ min: 1, max: 100 }}
-                  helperText="该用户最多可以订阅的公开任务数量"
+                  helperText={content.maxSubscriptionsHelper}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&:hover fieldset': {
@@ -757,7 +850,7 @@ const UserManagement = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(245, 158, 11, 0.05)' }}>
                   <Switch
                     checked={formData.is_admin}
-                    onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
+                    onChange={(event) => setFormData({ ...formData, is_admin: event.target.checked })}
                     sx={{
                       '& .MuiSwitch-thumb': {
                         backgroundColor: formData.is_admin ? '#f59e0b' : 'default',
@@ -769,10 +862,10 @@ const UserManagement = () => {
                   />
                   <Box sx={{ ml: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      管理员权限
+                      {content.adminPermission}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      拥有系统管理权限
+                      {content.adminPermissionHelper}
                     </Typography>
                   </Box>
                 </Box>
@@ -781,7 +874,7 @@ const UserManagement = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>
                   <Switch
                     checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    onChange={(event) => setFormData({ ...formData, is_active: event.target.checked })}
                     sx={{
                       '& .MuiSwitch-thumb': {
                         backgroundColor: formData.is_active ? '#10b981' : 'default',
@@ -793,10 +886,10 @@ const UserManagement = () => {
                   />
                   <Box sx={{ ml: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      启用账户
+                      {content.activeAccount}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      允许用户登录系统
+                      {content.activeAccountHelper}
                     </Typography>
                   </Box>
                 </Box>
@@ -812,7 +905,7 @@ const UserManagement = () => {
                 '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
               }}
             >
-              取消
+              {content.cancel}
             </Button>
             <Button
               type="submit"
@@ -831,21 +924,22 @@ const UserManagement = () => {
                 },
               }}
             >
-              {editingUser ? '更新用户' : '创建用户'}
+              {editingUser ? content.updateUser : content.createUserAction}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* Footer GitHub Link */}
-      <Box sx={{
-        mt: 4,
-        p: 3,
-        textAlign: 'center',
-        borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-      }}>
+      <Box
+        sx={{
+          mt: 4,
+          p: 3,
+          textAlign: 'center',
+          borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+        }}
+      >
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          项目开源，欢迎贡献代码
+          {t('common.footerCta')}
         </Typography>
         <Button
           variant="outlined"
@@ -865,7 +959,7 @@ const UserManagement = () => {
             },
           }}
         >
-          访问 GitHub 仓库
+          {t('common.visitGithub')}
         </Button>
       </Box>
     </Box>

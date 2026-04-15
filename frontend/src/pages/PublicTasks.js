@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -41,7 +41,11 @@ import {
   Link as LinkIcon,
   CheckCircle as SuccessIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+
+import { formatDateTime } from '../utils/date';
+import { isChineseLanguage } from '../utils/i18n';
 
 const PublicTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -60,49 +64,146 @@ const PublicTasks = () => {
   const [emailConfigs, setEmailConfigs] = useState([]);
   const [emailConfigDialogOpen, setEmailConfigDialogOpen] = useState(false);
   const [selectedEmailConfig, setSelectedEmailConfig] = useState('');
+  const { i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
 
-  // 获取公开任务列表
-  const fetchPublicTasks = async () => {
+  const content = isChinese ? {
+    title: '公开任务市场',
+    subtitle: '发现和订阅其他用户分享的监控任务',
+    publicTasks: '公开任务',
+    mySubscriptions: '我的订阅',
+    remainingSlots: '剩余额度',
+    totalSubscriptions: '总订阅数',
+    usageTitle: '订阅使用情况',
+    usageLine1: `当前已订阅 ${subscriptionInfo.current_subscriptions} 个任务，最多可订阅 ${subscriptionInfo.max_subscriptions} 个`,
+    usageLine2: `剩余订阅额度：${subscriptionInfo.remaining_slots} 个`,
+    usageLine3: '订阅任务后，当任务监控到内容变化时，您会收到邮件通知',
+    taskList: '公开任务列表',
+    noTasks: '暂无公开任务',
+    noTasksSubtitle: '当前没有用户分享公开的监控任务',
+    taskInfo: '任务信息',
+    creator: '创建者',
+    subscriptions: '订阅数',
+    interval: '检查间隔',
+    createdAt: '创建时间',
+    actions: '操作',
+    subscribe: '订阅',
+    unsubscribe: '取消订阅',
+    subscribeTask: '订阅任务',
+    unsubscribeTask: '取消订阅',
+    viewDetails: '查看详情',
+    taskDetails: '任务详情',
+    noDescription: '暂无描述',
+    monitorUrl: '监控 URL',
+    subscriberCount: '订阅人数',
+    close: '关闭',
+    chooseEmailConfig: '选择邮箱配置',
+    chooseEmailConfigSubtitle: '订阅任务需要配置邮件通知，请选择要使用的邮箱配置',
+    noEmailConfig: '您还没有配置邮箱通知设置。请先在“邮件通知配置”页面添加邮箱配置后再订阅任务。',
+    emailConfig: '邮箱配置',
+    cancel: '取消',
+    confirmSubscribe: '确认订阅',
+    fetchPublicTasksFailed: '获取公开任务失败',
+    toggleFailed: '操作失败',
+    subscribeWithEmailFailed: '操作失败',
+    unknownError: '未知错误',
+    seconds: '秒',
+    createdByLabel: '创建者',
+    createdAtLabel: '创建时间',
+  } : {
+    title: 'Public task marketplace',
+    subtitle: 'Discover and subscribe to monitoring tasks shared by other users.',
+    publicTasks: 'Public tasks',
+    mySubscriptions: 'My subscriptions',
+    remainingSlots: 'Remaining slots',
+    totalSubscriptions: 'Total subscriptions',
+    usageTitle: 'Subscription usage',
+    usageLine1: `You are currently subscribed to ${subscriptionInfo.current_subscriptions} tasks and can subscribe to up to ${subscriptionInfo.max_subscriptions}.`,
+    usageLine2: `Remaining subscription slots: ${subscriptionInfo.remaining_slots}`,
+    usageLine3: 'You will receive email notifications when subscribed tasks detect content changes.',
+    taskList: 'Public task list',
+    noTasks: 'No public tasks yet',
+    noTasksSubtitle: 'No users have shared public monitoring tasks yet.',
+    taskInfo: 'Task info',
+    creator: 'Creator',
+    subscriptions: 'Subscriptions',
+    interval: 'Interval',
+    createdAt: 'Created at',
+    actions: 'Actions',
+    subscribe: 'Subscribe',
+    unsubscribe: 'Unsubscribe',
+    subscribeTask: 'Subscribe to task',
+    unsubscribeTask: 'Unsubscribe',
+    viewDetails: 'View details',
+    taskDetails: 'Task details',
+    noDescription: 'No description',
+    monitorUrl: 'Monitor URL',
+    subscriberCount: 'Subscribers',
+    close: 'Close',
+    chooseEmailConfig: 'Choose email configuration',
+    chooseEmailConfigSubtitle: 'Task subscriptions require email notifications. Choose the email configuration to use.',
+    noEmailConfig: 'You have not configured email notifications yet. Add an email configuration on the email configuration page before subscribing.',
+    emailConfig: 'Email configuration',
+    cancel: 'Cancel',
+    confirmSubscribe: 'Confirm subscription',
+    fetchPublicTasksFailed: 'Failed to fetch public tasks',
+    toggleFailed: 'Operation failed',
+    subscribeWithEmailFailed: 'Operation failed',
+    unknownError: 'Unknown error',
+    seconds: 's',
+    createdByLabel: 'Created by',
+    createdAtLabel: 'Created at',
+  };
+
+  const getErrorMessage = useCallback((error) => {
+    return error.response?.data?.detail || content.unknownError;
+  }, [content.unknownError]);
+
+  const requiresEmailConfig = (message) => {
+    const normalized = String(message || '').toLowerCase();
+    return normalized.includes('邮箱配置')
+      || normalized.includes('邮件通知设置')
+      || normalized.includes('email config')
+      || normalized.includes('email notification');
+  };
+
+  const fetchPublicTasks = useCallback(async () => {
     try {
       const response = await axios.get('/api/public-tasks');
       setTasks(response.data);
     } catch (error) {
-      console.error('获取公开任务失败:', error);
       setSnackbar({
         open: true,
-        message: '获取公开任务失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.fetchPublicTasksFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
-  };
+  }, [content.fetchPublicTasksFailed, getErrorMessage]);
 
-  // 获取订阅信息
-  const fetchSubscriptionInfo = async () => {
+  const fetchSubscriptionInfo = useCallback(async () => {
     try {
       const response = await axios.get('/api/subscription-info');
       setSubscriptionInfo(response.data);
     } catch (error) {
-      console.error('获取订阅信息失败:', error);
+      console.error('Failed to fetch subscription info:', error);
     }
-  };
+  }, []);
 
-  // 获取邮箱配置列表
-  const fetchEmailConfigs = async () => {
+  const fetchEmailConfigs = useCallback(async () => {
     try {
       const response = await axios.get('/api/email-configs/simple-list');
       setEmailConfigs(response.data);
     } catch (error) {
-      console.error('获取邮箱配置失败:', error);
+      console.error('Failed to fetch email configs:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPublicTasks();
     fetchSubscriptionInfo();
     fetchEmailConfigs();
-  }, []);
+  }, [fetchPublicTasks, fetchSubscriptionInfo, fetchEmailConfigs]);
 
-  // 切换订阅状态
   const handleToggleSubscription = async (taskId) => {
     try {
       const response = await axios.post(`/api/subscriptions/${taskId}/toggle`);
@@ -113,29 +214,26 @@ const PublicTasks = () => {
         severity: 'success',
       });
 
-      // 刷新数据
       fetchPublicTasks();
       fetchSubscriptionInfo();
     } catch (error) {
-      console.error('订阅操作失败:', error);
-      const errorMessage = error.response?.data?.detail || '未知错误';
+      const errorMessage = getErrorMessage(error);
 
-      // 如果是邮箱配置相关的错误，打开邮箱配置选择对话框
-      if (errorMessage.includes('邮箱配置') || errorMessage.includes('邮件通知设置')) {
+      if (requiresEmailConfig(errorMessage)) {
         setSelectedTask(taskId);
         setSelectedEmailConfig('');
         setEmailConfigDialogOpen(true);
-      } else {
-        setSnackbar({
-          open: true,
-          message: '操作失败: ' + errorMessage,
-          severity: 'error',
-        });
+        return;
       }
+
+      setSnackbar({
+        open: true,
+        message: `${content.toggleFailed}: ${errorMessage}`,
+        severity: 'error',
+      });
     }
   };
 
-  // 带邮箱配置的订阅
   const handleSubscribeWithEmail = async () => {
     try {
       const response = await axios.post(
@@ -149,37 +247,31 @@ const PublicTasks = () => {
         severity: 'success',
       });
 
-      // 关闭对话框并刷新数据
       setEmailConfigDialogOpen(false);
       setSelectedTask(null);
       setSelectedEmailConfig('');
       fetchPublicTasks();
       fetchSubscriptionInfo();
     } catch (error) {
-      console.error('带邮箱配置订阅失败:', error);
       setSnackbar({
         open: true,
-        message: '操作失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.subscribeWithEmailFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
   };
 
-  // 查看任务详情
   const handleViewDetails = (task) => {
     setSelectedTask(task);
     setDetailDialogOpen(true);
   };
 
-  // 关闭提示
   const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+    setSnackbar((previous) => ({ ...previous, open: false }));
   };
 
-  
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -200,15 +292,14 @@ const PublicTasks = () => {
               mb: 1,
             }}
           >
-            公开任务市场
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            发现和订阅其他用户分享的监控任务
+            {content.subtitle}
           </Typography>
         </Box>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -252,7 +343,7 @@ const PublicTasks = () => {
                   {tasks.length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  公开任务
+                  {content.publicTasks}
                 </Typography>
               </Box>
             </CardContent>
@@ -300,7 +391,7 @@ const PublicTasks = () => {
                   {subscriptionInfo.current_subscriptions}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  我的订阅
+                  {content.mySubscriptions}
                 </Typography>
               </Box>
             </CardContent>
@@ -348,7 +439,7 @@ const PublicTasks = () => {
                   {subscriptionInfo.remaining_slots}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  剩余额度
+                  {content.remainingSlots}
                 </Typography>
               </Box>
             </CardContent>
@@ -396,7 +487,7 @@ const PublicTasks = () => {
                   {tasks.reduce((sum, task) => sum + task.subscription_count, 0)}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  总订阅数
+                  {content.totalSubscriptions}
                 </Typography>
               </Box>
             </CardContent>
@@ -404,28 +495,26 @@ const PublicTasks = () => {
         </Grid>
       </Grid>
 
-      {/* 订阅信息卡片 */}
       <Card sx={{ mb: 4, backgroundColor: alpha('#1976d2', 0.04), border: `1px solid ${alpha('#1976d2', 0.12)}` }}>
         <CardContent sx={{ py: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
             <PeopleIcon sx={{ fontSize: 20, color: '#1976d2' }} />
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
-              订阅使用情况
+              {content.usageTitle}
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 当前已订阅 {subscriptionInfo.current_subscriptions} 个任务，最多可订阅 {subscriptionInfo.max_subscriptions} 个
+            • {content.usageLine1}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 剩余订阅额度：{subscriptionInfo.remaining_slots} 个
+            • {content.usageLine2}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 订阅任务后，当任务监控到内容变化时，您会收到邮件通知
+            • {content.usageLine3}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* Tasks Table */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -435,7 +524,7 @@ const PublicTasks = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            公开任务列表
+            {content.taskList}
           </Typography>
         </Box>
         {tasks.length === 0 ? (
@@ -453,10 +542,10 @@ const PublicTasks = () => {
               <PublicIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无公开任务
+              {content.noTasks}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              当前没有用户分享公开的监控任务
+              {content.noTasksSubtitle}
             </Typography>
           </Box>
         ) : (
@@ -464,12 +553,12 @@ const PublicTasks = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(25, 118, 210, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>任务信息</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>创建者</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>订阅数</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>检查间隔</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>创建时间</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.taskInfo}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.creator}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.subscriptions}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.interval}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.createdAt}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -535,30 +624,30 @@ const PublicTasks = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <ScheduleIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
                         <Typography variant="body2">
-                          {task.interval}秒
+                          {task.interval}{content.seconds}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(task.created_at).toLocaleString()}
+                        {formatDateTime(task.created_at, i18n.language)}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        <Tooltip title={task.user_subscribed ? "取消订阅" : "订阅任务"}>
+                        <Tooltip title={task.user_subscribed ? content.unsubscribeTask : content.subscribeTask}>
                           <Button
                             size="small"
-                            variant={task.user_subscribed ? "outlined" : "contained"}
-                            color={task.user_subscribed ? "secondary" : "primary"}
+                            variant={task.user_subscribed ? 'outlined' : 'contained'}
+                            color={task.user_subscribed ? 'secondary' : 'primary'}
                             startIcon={task.user_subscribed ? <UnsubscribeIcon /> : <SubscribeIcon />}
                             onClick={() => handleToggleSubscription(task.id)}
                             disabled={!task.user_subscribed && subscriptionInfo.remaining_slots <= 0}
                           >
-                            {task.user_subscribed ? "取消订阅" : "订阅"}
+                            {task.user_subscribed ? content.unsubscribe : content.subscribe}
                           </Button>
                         </Tooltip>
-                        <Tooltip title="查看详情">
+                        <Tooltip title={content.viewDetails}>
                           <IconButton
                             size="small"
                             onClick={() => handleViewDetails(task)}
@@ -580,58 +669,56 @@ const PublicTasks = () => {
         )}
       </Paper>
 
-      {/* 任务详情对话框 */}
       <Dialog open={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <PublicIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             <Typography variant="h5" component="div">
-              任务详情
+              {content.taskDetails}
             </Typography>
           </Box>
         </DialogTitle>
         <DialogContent>
-          {selectedTask && (
+          {selectedTask && typeof selectedTask === 'object' && (
             <Box>
               <Typography variant="h6" sx={{ mb: 1 }}>
                 {selectedTask.name}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                创建者：{selectedTask.owner_username} | 创建时间：{new Date(selectedTask.created_at).toLocaleString()}
+                {content.createdByLabel}: {selectedTask.owner_username} | {content.createdAtLabel}: {formatDateTime(selectedTask.created_at, i18n.language)}
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
-                {selectedTask.description || '暂无描述'}
+                {selectedTask.description || content.noDescription}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                监控URL：{selectedTask.url}
+                {content.monitorUrl}: {selectedTask.url}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                订阅人数：{selectedTask.subscription_count}
+                {content.subscriberCount}: {selectedTask.subscription_count}
               </Typography>
             </Box>
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setDetailDialogOpen(false)} color="inherit">
-            关闭
+            {content.close}
           </Button>
-          {selectedTask && (
+          {selectedTask && typeof selectedTask === 'object' && (
             <Button
               onClick={() => {
                 handleToggleSubscription(selectedTask.id);
                 setDetailDialogOpen(false);
               }}
-              variant={selectedTask.user_subscribed ? "outlined" : "contained"}
-              color={selectedTask.user_subscribed ? "secondary" : "primary"}
+              variant={selectedTask.user_subscribed ? 'outlined' : 'contained'}
+              color={selectedTask.user_subscribed ? 'secondary' : 'primary'}
               disabled={!selectedTask.user_subscribed && subscriptionInfo.remaining_slots <= 0}
             >
-              {selectedTask.user_subscribed ? "取消订阅" : "订阅任务"}
+              {selectedTask.user_subscribed ? content.unsubscribeTask : content.subscribeTask}
             </Button>
           )}
         </DialogActions>
       </Dialog>
 
-      {/* 邮箱配置选择对话框 */}
       <Dialog
         open={emailConfigDialogOpen}
         onClose={() => setEmailConfigDialogOpen(false)}
@@ -640,25 +727,25 @@ const PublicTasks = () => {
       >
         <DialogTitle>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            选择邮箱配置
+            {content.chooseEmailConfig}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            订阅任务需要配置邮件通知，请选择要使用的邮箱配置
+            {content.chooseEmailConfigSubtitle}
           </Typography>
         </DialogTitle>
         <DialogContent>
           {emailConfigs.length === 0 ? (
             <Alert severity="warning" sx={{ mb: 2 }}>
-              您还没有配置邮箱通知设置。请先在"邮件通知配置"页面添加邮箱配置后再订阅任务。
+              {content.noEmailConfig}
             </Alert>
           ) : (
             <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel id="email-config-select-label">邮箱配置</InputLabel>
+              <InputLabel id="email-config-select-label">{content.emailConfig}</InputLabel>
               <Select
                 labelId="email-config-select-label"
                 value={selectedEmailConfig}
-                label="邮箱配置"
-                onChange={(e) => setSelectedEmailConfig(e.target.value)}
+                label={content.emailConfig}
+                onChange={(event) => setSelectedEmailConfig(event.target.value)}
               >
                 {emailConfigs.map((config) => (
                   <MenuItem key={config.id} value={config.id}>
@@ -670,11 +757,8 @@ const PublicTasks = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setEmailConfigDialogOpen(false)}
-            color="inherit"
-          >
-            取消
+          <Button onClick={() => setEmailConfigDialogOpen(false)} color="inherit">
+            {content.cancel}
           </Button>
           {emailConfigs.length > 0 && (
             <Button
@@ -682,13 +766,12 @@ const PublicTasks = () => {
               variant="contained"
               disabled={!selectedEmailConfig}
             >
-              确认订阅
+              {content.confirmSubscribe}
             </Button>
           )}
         </DialogActions>
       </Dialog>
 
-      {/* 提示消息 */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

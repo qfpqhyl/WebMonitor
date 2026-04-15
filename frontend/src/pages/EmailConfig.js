@@ -41,10 +41,13 @@ import {
   Code as CodeIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
+import { isChineseLanguage } from '../utils/i18n';
+
 const EmailConfig = () => {
-    const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [editingConfig, setEditingConfig] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -56,10 +59,91 @@ const EmailConfig = () => {
     receiver_email: '',
     is_ssl: true,
   });
+  const { t, i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
+
+  const content = isChinese ? {
+    title: '系统设置',
+    subtitle: '配置邮件通知和系统参数',
+    addConfig: '添加邮件配置',
+    emailConfigs: '邮件配置',
+    activeConfigs: '活跃配置',
+    secureConnection: '安全连接',
+    systemConfigured: '系统设置',
+    configured: '已配置',
+    sectionTitle: 'SMTP 邮件配置',
+    sectionDescription: '配置 SMTP 邮件服务器，系统将在监控到内容变化时发送通知邮件。支持多个邮件配置，在创建监控任务时可以选择使用哪个配置。',
+    noConfigs: '暂无邮件配置',
+    noConfigsSubtitle: '添加第一个邮件配置开始使用通知功能',
+    createFirstConfig: '创建第一个配置',
+    configDetails: '配置详情',
+    senderEmail: '发送邮箱',
+    receiverEmail: '接收邮箱',
+    actions: '操作',
+    smtpSenderAccount: 'SMTP 发送账户',
+    notificationReceiver: '通知接收账户',
+    testConnection: '测试连接',
+    editConfig: '编辑配置',
+    deleteConfig: '删除配置',
+    operationFailed: '操作失败',
+    editDialogTitle: '编辑邮件配置',
+    createDialogTitle: '创建邮件配置',
+    dialogSubtitle: '配置 SMTP 邮件服务器发送通知',
+    configName: '配置名称',
+    smtpServer: 'SMTP 服务器',
+    smtpPort: 'SMTP 端口',
+    senderAddress: '发件人邮箱',
+    smtpPassword: 'SMTP 密码',
+    passwordHelper: '建议使用应用专用密码以提高安全性',
+    receiverAddress: '接收者邮箱',
+    useSsl: '使用 SSL 加密',
+    useSslHelper: '启用 SSL/TLS 加密连接确保邮件传输安全',
+    cancel: '取消',
+    updateConfig: '更新配置',
+    createConfig: '创建配置',
+  } : {
+    title: 'System settings',
+    subtitle: 'Configure email notifications and system parameters.',
+    addConfig: 'Add email config',
+    emailConfigs: 'Email configs',
+    activeConfigs: 'Active configs',
+    secureConnection: 'Secure connection',
+    systemConfigured: 'System settings',
+    configured: 'Configured',
+    sectionTitle: 'SMTP email configuration',
+    sectionDescription: 'Configure SMTP servers so the system can send notification emails when changes are detected. Multiple email configs are supported and can be selected when creating monitor tasks.',
+    noConfigs: 'No email configurations yet',
+    noConfigsSubtitle: 'Add your first email configuration to start using notifications.',
+    createFirstConfig: 'Create first config',
+    configDetails: 'Config details',
+    senderEmail: 'Sender email',
+    receiverEmail: 'Receiver email',
+    actions: 'Actions',
+    smtpSenderAccount: 'SMTP sender account',
+    notificationReceiver: 'Notification receiver',
+    testConnection: 'Test connection',
+    editConfig: 'Edit config',
+    deleteConfig: 'Delete config',
+    operationFailed: 'Operation failed',
+    editDialogTitle: 'Edit email configuration',
+    createDialogTitle: 'Create email configuration',
+    dialogSubtitle: 'Configure an SMTP server for notifications',
+    configName: 'Config name',
+    smtpServer: 'SMTP server',
+    smtpPort: 'SMTP port',
+    senderAddress: 'Sender email',
+    smtpPassword: 'SMTP password',
+    passwordHelper: 'Using an app-specific password is recommended for better security',
+    receiverAddress: 'Receiver email',
+    useSsl: 'Use SSL encryption',
+    useSslHelper: 'Enable SSL/TLS to secure mail transmission',
+    cancel: 'Cancel',
+    updateConfig: 'Update config',
+    createConfig: 'Create config',
+  };
 
   const queryClient = useQueryClient();
 
-  // 获取邮件配置列表
   const { data: emailConfigs = [] } = useQuery(
     'emailConfigs',
     async () => {
@@ -68,7 +152,6 @@ const EmailConfig = () => {
     }
   );
 
-  // 创建邮件配置
   const createConfigMutation = useMutation(
     async (configData) => {
       const response = await axios.post('/api/email-configs', configData);
@@ -83,7 +166,6 @@ const EmailConfig = () => {
     }
   );
 
-  // 更新邮件配置
   const updateConfigMutation = useMutation(
     async ({ id, ...configData }) => {
       const response = await axios.put(`/api/email-configs/${id}`, configData);
@@ -98,7 +180,6 @@ const EmailConfig = () => {
     }
   );
 
-  // 删除邮件配置
   const deleteConfigMutation = useMutation(
     async (id) => {
       await axios.delete(`/api/email-configs/${id}`);
@@ -110,7 +191,6 @@ const EmailConfig = () => {
     }
   );
 
-  // 测试邮件配置
   const testConfigMutation = useMutation(
     async (configId) => {
       const response = await axios.post(`/api/email-configs/${configId}/test`);
@@ -129,6 +209,7 @@ const EmailConfig = () => {
       is_ssl: true,
     });
     setEditingConfig(null);
+    setShowPassword(false);
   };
 
   const handleOpenDialog = (config = null) => {
@@ -154,7 +235,9 @@ const EmailConfig = () => {
     resetForm();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
     if (editingConfig) {
       updateConfigMutation.mutate({ id: editingConfig.id, ...formData });
     } else {
@@ -166,10 +249,8 @@ const EmailConfig = () => {
     testConfigMutation.mutate(configId);
   };
 
-  
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -190,10 +271,10 @@ const EmailConfig = () => {
               mb: 1,
             }}
           >
-            系统设置
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            配置邮件通知和系统参数
+            {content.subtitle}
           </Typography>
         </Box>
         <Button
@@ -215,11 +296,10 @@ const EmailConfig = () => {
             },
           }}
         >
-          添加邮件配置
+          {content.addConfig}
         </Button>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -248,7 +328,7 @@ const EmailConfig = () => {
                     {emailConfigs.length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    邮件配置
+                    {content.emailConfigs}
                   </Typography>
                 </Box>
               </Box>
@@ -279,10 +359,10 @@ const EmailConfig = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {emailConfigs.filter(c => c.is_active).length}
+                    {emailConfigs.filter((config) => config.is_active).length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    活跃配置
+                    {content.activeConfigs}
                   </Typography>
                 </Box>
               </Box>
@@ -316,7 +396,7 @@ const EmailConfig = () => {
                     SSL/TLS
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    安全连接
+                    {content.secureConnection}
                   </Typography>
                 </Box>
               </Box>
@@ -347,10 +427,10 @@ const EmailConfig = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    已配置
+                    {content.configured}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    系统设置
+                    {content.systemConfigured}
                   </Typography>
                 </Box>
               </Box>
@@ -359,7 +439,6 @@ const EmailConfig = () => {
         </Grid>
       </Grid>
 
-      {/* Email Configurations */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -369,7 +448,7 @@ const EmailConfig = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            SMTP邮件配置
+            {content.sectionTitle}
           </Typography>
         </Box>
 
@@ -377,7 +456,7 @@ const EmailConfig = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <InfoIcon sx={{ mr: 2, color: '#2563eb' }} />
             <Typography variant="body2">
-              配置SMTP邮件服务器，系统将在监控到内容变化时发送通知邮件。支持多个邮件配置，在创建监控任务时可以选择使用哪个配置。
+              {content.sectionDescription}
             </Typography>
           </Box>
         </Box>
@@ -397,10 +476,10 @@ const EmailConfig = () => {
               <MailIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无邮件配置
+              {content.noConfigs}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              添加第一个邮件配置开始使用通知功能
+              {content.noConfigsSubtitle}
             </Typography>
             <Button
               variant="contained"
@@ -412,7 +491,7 @@ const EmailConfig = () => {
                 fontWeight: 'bold',
               }}
             >
-              创建第一个配置
+              {content.createFirstConfig}
             </Button>
           </Box>
         ) : (
@@ -420,10 +499,10 @@ const EmailConfig = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(37, 99, 235, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600, py: 2 }}>配置详情</TableCell>
-                  <TableCell sx={{ fontWeight: 600, py: 2 }}>发送邮箱</TableCell>
-                  <TableCell sx={{ fontWeight: 600, py: 2 }}>接收邮箱</TableCell>
-                  <TableCell sx={{ fontWeight: 600, py: 2, textAlign: 'center' }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600, py: 2 }}>{content.configDetails}</TableCell>
+                  <TableCell sx={{ fontWeight: 600, py: 2 }}>{content.senderEmail}</TableCell>
+                  <TableCell sx={{ fontWeight: 600, py: 2 }}>{content.receiverEmail}</TableCell>
+                  <TableCell sx={{ fontWeight: 600, py: 2, textAlign: 'center' }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -466,7 +545,7 @@ const EmailConfig = () => {
                             {config.smtp_user}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            SMTP发送账户
+                            {content.smtpSenderAccount}
                           </Typography>
                         </Box>
                       </Box>
@@ -479,14 +558,14 @@ const EmailConfig = () => {
                             {config.receiver_email}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            通知接收账户
+                            {content.notificationReceiver}
                           </Typography>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                        <Tooltip title="测试连接">
+                        <Tooltip title={content.testConnection}>
                           <IconButton
                             size="small"
                             onClick={() => handleTestConfig(config.id)}
@@ -499,7 +578,7 @@ const EmailConfig = () => {
                             <TestIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="编辑配置">
+                        <Tooltip title={content.editConfig}>
                           <IconButton
                             size="small"
                             onClick={() => handleOpenDialog(config)}
@@ -511,7 +590,7 @@ const EmailConfig = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="删除配置">
+                        <Tooltip title={content.deleteConfig}>
                           <IconButton
                             size="small"
                             onClick={() => deleteConfigMutation.mutate(config.id)}
@@ -534,12 +613,8 @@ const EmailConfig = () => {
         )}
 
         {(createConfigMutation.error || updateConfigMutation.error || deleteConfigMutation.error) && (
-          <Alert
-            severity="error"
-            sx={{ m: 3, borderRadius: 2 }}
-            variant="filled"
-          >
-            操作失败: {(createConfigMutation.error || updateConfigMutation.error || deleteConfigMutation.error).message}
+          <Alert severity="error" sx={{ m: 3, borderRadius: 2 }} variant="filled">
+            {content.operationFailed}: {(createConfigMutation.error || updateConfigMutation.error || deleteConfigMutation.error).message}
           </Alert>
         )}
 
@@ -554,7 +629,6 @@ const EmailConfig = () => {
         )}
       </Paper>
 
-      {/* Enhanced Email Configuration Dialog */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -591,10 +665,10 @@ const EmailConfig = () => {
             </Avatar>
             <Box>
               <Typography variant="h6" component="span">
-                {editingConfig ? '编辑邮件配置' : '创建邮件配置'}
+                {editingConfig ? content.editDialogTitle : content.createDialogTitle}
               </Typography>
               <Typography variant="body2" component="div" sx={{ opacity: 0.9 }}>
-                配置SMTP邮件服务器发送通知
+                {content.dialogSubtitle}
               </Typography>
             </Box>
           </Box>
@@ -604,7 +678,7 @@ const EmailConfig = () => {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
-                  label="配置名称"
+                  label={content.configName}
                   fullWidth
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -624,7 +698,7 @@ const EmailConfig = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="SMTP服务器"
+                  label={content.smtpServer}
                   fullWidth
                   value={formData.smtp_server}
                   onChange={(e) => setFormData({ ...formData, smtp_server: e.target.value })}
@@ -652,11 +726,11 @@ const EmailConfig = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="SMTP端口"
+                  label={content.smtpPort}
                   fullWidth
                   type="number"
                   value={formData.smtp_port}
-                  onChange={(e) => setFormData({ ...formData, smtp_port: parseInt(e.target.value) || '' })}
+                  onChange={(e) => setFormData({ ...formData, smtp_port: parseInt(e.target.value, 10) || '' })}
                   required
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -673,7 +747,7 @@ const EmailConfig = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="发件人邮箱"
+                  label={content.senderAddress}
                   fullWidth
                   type="email"
                   value={formData.smtp_user}
@@ -701,13 +775,13 @@ const EmailConfig = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="SMTP密码"
+                  label={content.smtpPassword}
                   type={showPassword ? 'text' : 'password'}
                   fullWidth
                   value={formData.smtp_password}
                   onChange={(e) => setFormData({ ...formData, smtp_password: e.target.value })}
                   required
-                  helperText="建议使用应用专用密码以提高安全性"
+                  helperText={content.passwordHelper}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -742,7 +816,7 @@ const EmailConfig = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="接收者邮箱"
+                  label={content.receiverAddress}
                   fullWidth
                   type="email"
                   value={formData.receiver_email}
@@ -784,10 +858,10 @@ const EmailConfig = () => {
                   />
                   <Box sx={{ ml: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      使用SSL加密
+                      {content.useSsl}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      启用SSL/TLS加密连接确保邮件传输安全
+                      {content.useSslHelper}
                     </Typography>
                   </Box>
                 </Box>
@@ -803,7 +877,7 @@ const EmailConfig = () => {
                 '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
               }}
             >
-              取消
+              {content.cancel}
             </Button>
             <Button
               type="submit"
@@ -822,21 +896,22 @@ const EmailConfig = () => {
                 },
               }}
             >
-              {editingConfig ? '更新配置' : '创建配置'}
+              {editingConfig ? content.updateConfig : content.createConfig}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* Footer GitHub Link */}
-      <Box sx={{
-        mt: 4,
-        p: 3,
-        textAlign: 'center',
-        borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-      }}>
+      <Box
+        sx={{
+          mt: 4,
+          p: 3,
+          textAlign: 'center',
+          borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+        }}
+      >
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          项目开源，欢迎贡献代码
+          {t('common.footerCta')}
         </Typography>
         <Button
           variant="outlined"
@@ -856,7 +931,7 @@ const EmailConfig = () => {
             },
           }}
         >
-          访问 GitHub 仓库
+          {t('common.visitGithub')}
         </Button>
       </Box>
     </Box>

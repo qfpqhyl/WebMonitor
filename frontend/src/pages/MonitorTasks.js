@@ -44,11 +44,16 @@ import {
   Code as CodeIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+
 import { useAuth } from '../contexts/AuthContext';
+import { isChineseLanguage } from '../utils/i18n';
 
 const MonitorTasks = () => {
   const { user } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
   const [open, setOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [formData, setFormData] = useState({
@@ -59,21 +64,157 @@ const MonitorTasks = () => {
     is_active: true,
     is_public: false,
     description: '',
-    email_config_id: null,
+    email_config_id: '',
   });
+
+  const content = isChinese ? {
+    title: '监控任务管理',
+    subtitle: '管理和配置您的网页监控任务',
+    createTask: '创建新任务',
+    blacklistTitle: '黑名单限制说明',
+    blacklistItem1: '普通用户无法监控黑名单中禁止的网站域名',
+    blacklistItem2: '如需监控被限制的网站，请联系管理员将域名从黑名单中移除',
+    blacklistItem3: '管理员可访问“黑名单管理”功能进行域名管理',
+    totalTasks: '总任务数',
+    activeTasks: '活跃任务',
+    pausedTasks: '暂停任务',
+    emailNotifications: '邮件通知',
+    taskList: '监控任务列表',
+    noTasks: '暂无监控任务',
+    noTasksSubtitle: '创建您的第一个监控任务开始监控网页内容变化',
+    createFirstTask: '创建第一个任务',
+    taskInfo: '任务信息',
+    monitorConfig: '监控配置',
+    interval: '检查间隔',
+    emailConfig: '邮件配置',
+    status: '状态',
+    actions: '操作',
+    notSet: '未设置',
+    unknownConfig: '未知配置',
+    seconds: '秒',
+    running: '运行中',
+    paused: '已暂停',
+    testMonitor: '测试监控',
+    editTask: '编辑任务',
+    deleteTask: '删除任务',
+    editDialogTitle: '编辑监控任务',
+    createDialogTitle: '创建新监控任务',
+    taskName: '任务名称',
+    monitorUrl: '监控 URL',
+    xpathSelector: 'XPath 选择器',
+    xpathHelper: '用于定位监控内容的 XPath 表达式',
+    intervalSeconds: '检查间隔（秒）',
+    emailConfigRequired: '邮箱配置 *',
+    noEmailConfigOption: '暂无邮箱配置，请先添加邮件配置',
+    addEmailConfigHint: '请先在“邮件通知配置”页面添加邮箱配置',
+    taskDescription: '任务描述',
+    taskDescriptionHelper: '可选的任务描述，公开任务时其他用户可以看到此描述',
+    publicTask: '公开任务',
+    publicTaskHelper: '公开后其他用户可以订阅此任务并收到变更通知',
+    enableMonitoring: '启用监控',
+    enableMonitoringHelper: '立即开始监控指定网页',
+    cancel: '取消',
+    updateTask: '更新任务',
+    submitCreateTask: '创建任务',
+    loadTasksError: '加载监控任务失败',
+    selectEmailBeforeCreate: '请选择邮件配置后再创建任务。如果您还没有配置邮箱，请先在“邮件通知配置”页面添加邮箱配置。',
+    deleteConfirm: '确定要删除这个监控任务吗？',
+    testSuccess: '测试成功！',
+    contentLabel: '内容',
+    testFailed: '测试失败',
+    blacklistAlertTitle: '⚠️ 黑名单限制',
+    blacklistAlertBody: '该域名在管理员设置的黑名单中，普通用户无法监控此网站。\n\n如需监控此网站，请联系管理员将其从黑名单中移除。',
+    createFailed: '创建监控任务失败',
+    updateFailed: '更新监控任务失败',
+  } : {
+    title: 'Monitor tasks',
+    subtitle: 'Manage and configure your web monitoring tasks.',
+    createTask: 'Create task',
+    blacklistTitle: 'Blacklist restrictions',
+    blacklistItem1: 'Regular users cannot monitor domains blocked by the blacklist.',
+    blacklistItem2: 'If you need to monitor a blocked site, ask an admin to remove the domain from the blacklist.',
+    blacklistItem3: 'Admins can manage domains in the blacklist management page.',
+    totalTasks: 'Total tasks',
+    activeTasks: 'Active tasks',
+    pausedTasks: 'Paused tasks',
+    emailNotifications: 'Email notifications',
+    taskList: 'Monitor task list',
+    noTasks: 'No monitor tasks yet',
+    noTasksSubtitle: 'Create your first task to start monitoring web content changes.',
+    createFirstTask: 'Create first task',
+    taskInfo: 'Task info',
+    monitorConfig: 'Monitor config',
+    interval: 'Interval',
+    emailConfig: 'Email config',
+    status: 'Status',
+    actions: 'Actions',
+    notSet: 'Not set',
+    unknownConfig: 'Unknown config',
+    seconds: 's',
+    running: 'Running',
+    paused: 'Paused',
+    testMonitor: 'Test monitor',
+    editTask: 'Edit task',
+    deleteTask: 'Delete task',
+    editDialogTitle: 'Edit monitor task',
+    createDialogTitle: 'Create new monitor task',
+    taskName: 'Task name',
+    monitorUrl: 'Monitor URL',
+    xpathSelector: 'XPath selector',
+    xpathHelper: 'XPath expression used to locate the monitored content',
+    intervalSeconds: 'Check interval (seconds)',
+    emailConfigRequired: 'Email config *',
+    noEmailConfigOption: 'No email config yet. Add one first.',
+    addEmailConfigHint: 'Please add an email config in the email configuration page first.',
+    taskDescription: 'Task description',
+    taskDescriptionHelper: 'Optional description visible to other users when the task is public',
+    publicTask: 'Public task',
+    publicTaskHelper: 'Other users can subscribe to this task and receive change notifications',
+    enableMonitoring: 'Enable monitoring',
+    enableMonitoringHelper: 'Start monitoring this page immediately',
+    cancel: 'Cancel',
+    updateTask: 'Update task',
+    submitCreateTask: 'Create task',
+    loadTasksError: 'Failed to load monitor tasks',
+    selectEmailBeforeCreate: 'Please select an email configuration before creating the task. If you do not have one yet, add it in the email configuration page first.',
+    deleteConfirm: 'Are you sure you want to delete this monitor task?',
+    testSuccess: 'Test succeeded!',
+    contentLabel: 'Content',
+    testFailed: 'Test failed',
+    blacklistAlertTitle: '⚠️ Blacklist restriction',
+    blacklistAlertBody: 'This domain is blocked by the admin blacklist, so regular users cannot monitor it.\n\nIf you need to monitor it, ask an admin to remove the domain from the blacklist.',
+    createFailed: 'Failed to create monitor task',
+    updateFailed: 'Failed to update monitor task',
+  };
 
   const queryClient = useQueryClient();
 
-  // 获取邮箱配置名称的辅助函数
-  const getEmailConfigName = (task) => {
-    if (!task || !task.email_config_id) {
-      return '未设置';
+  const getReadableError = (error) => {
+    const errorDetail = error.response?.data?.detail;
+
+    if (typeof errorDetail === 'string') {
+      return errorDetail;
     }
-    const config = emailConfigs.find(c => c.id === task.email_config_id);
-    return config ? config.name : '未知配置';
+
+    if (typeof errorDetail === 'object' && errorDetail !== null) {
+      return JSON.stringify(errorDetail);
+    }
+
+    if (error.message) {
+      return error.message;
+    }
+
+    return t('common.unknownError');
   };
 
-  // 获取监控任务
+  const getEmailConfigName = (task) => {
+    if (!task || !task.email_config_id) {
+      return content.notSet;
+    }
+    const config = emailConfigs.find((item) => item.id === task.email_config_id);
+    return config ? config.name : content.unknownConfig;
+  };
+
   const { data: tasks = [], error } = useQuery(
     'monitor-tasks',
     async () => {
@@ -82,31 +223,28 @@ const MonitorTasks = () => {
     }
   );
 
-  // 获取邮箱配置列表
   const { data: emailConfigs = [] } = useQuery(
     'emailConfigs',
     async () => {
       const response = await axios.get('/api/email-configs/simple-list');
-      console.log('Email configs received:', response.data);
       return response.data;
     },
     {
-      onError: (error) => {
-        console.error('Failed to fetch email configs:', error);
-      },
       onSuccess: (data) => {
-        // 如果用户只有一个邮箱配置且当前没有选择配置，自动选择它
         if (data.length === 1 && !formData.email_config_id && !editingTask) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            email_config_id: data[0].id
+            email_config_id: data[0].id,
           }));
         }
-      }
+      },
     }
   );
 
-  // 创建任务
+  const showBlacklistAlert = () => {
+    window.alert(`${content.blacklistAlertTitle}\n\n${content.blacklistAlertBody}`);
+  };
+
   const createMutation = useMutation(
     async (taskData) => {
       const response = await axios.post('/api/monitor-tasks', taskData);
@@ -117,31 +255,17 @@ const MonitorTasks = () => {
         queryClient.invalidateQueries('monitor-tasks');
         handleClose();
       },
-      onError: (error) => {
-        console.error('Create task error:', error);
-
-        // 特殊处理黑名单错误
-        if (error.response?.status === 403 && error.response?.data?.detail?.includes('黑名单')) {
-          alert('⚠️ 黑名单限制\n\n该域名在管理员设置的黑名单中，普通用户无法监控此网站。\n\n如需监控此网站，请联系管理员将其从黑名单中移除。');
-        } else {
-          const errorDetail = error.response?.data?.detail;
-          let errorMessage = '未知错误';
-
-          if (typeof errorDetail === 'string') {
-            errorMessage = errorDetail;
-          } else if (typeof errorDetail === 'object') {
-            errorMessage = JSON.stringify(errorDetail);
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-
-          alert('创建监控任务失败: ' + errorMessage);
+      onError: (errorValue) => {
+        if (errorValue.response?.status === 403 && errorValue.response?.data?.detail?.includes('黑名单')) {
+          showBlacklistAlert();
+          return;
         }
+
+        window.alert(`${content.createFailed}: ${getReadableError(errorValue)}`);
       },
     }
   );
 
-  // 更新任务
   const updateMutation = useMutation(
     async ({ id, taskData }) => {
       const response = await axios.put(`/api/monitor-tasks/${id}`, taskData);
@@ -152,31 +276,17 @@ const MonitorTasks = () => {
         queryClient.invalidateQueries('monitor-tasks');
         handleClose();
       },
-      onError: (error) => {
-        console.error('Update task error:', error);
-
-        // 特殊处理黑名单错误
-        if (error.response?.status === 403 && error.response?.data?.detail?.includes('黑名单')) {
-          alert('⚠️ 黑名单限制\n\n该域名在管理员设置的黑名单中，普通用户无法监控此网站。\n\n如需监控此网站，请联系管理员将其从黑名单中移除。');
-        } else {
-          const errorDetail = error.response?.data?.detail;
-          let errorMessage = '未知错误';
-
-          if (typeof errorDetail === 'string') {
-            errorMessage = errorDetail;
-          } else if (typeof errorDetail === 'object') {
-            errorMessage = JSON.stringify(errorDetail);
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-
-          alert('更新监控任务失败: ' + errorMessage);
+      onError: (errorValue) => {
+        if (errorValue.response?.status === 403 && errorValue.response?.data?.detail?.includes('黑名单')) {
+          showBlacklistAlert();
+          return;
         }
+
+        window.alert(`${content.updateFailed}: ${getReadableError(errorValue)}`);
       },
     }
   );
 
-  // 删除任务
   const deleteMutation = useMutation(
     async (id) => {
       await axios.delete(`/api/monitor-tasks/${id}`);
@@ -188,7 +298,6 @@ const MonitorTasks = () => {
     }
   );
 
-  // 测试任务
   const testMutation = useMutation(
     async (id) => {
       const response = await axios.post(`/api/monitor-tasks/${id}/test`);
@@ -207,7 +316,7 @@ const MonitorTasks = () => {
         is_active: task.is_active,
         is_public: task.is_public || false,
         description: task.description || '',
-        email_config_id: task.email_config_id || null,
+        email_config_id: task.email_config_id || '',
       });
     } else {
       setEditingTask(null);
@@ -219,7 +328,7 @@ const MonitorTasks = () => {
         is_active: true,
         is_public: false,
         description: '',
-        email_config_id: null,
+        email_config_id: emailConfigs.length === 1 ? emailConfigs[0].id : '',
       });
     }
     setOpen(true);
@@ -230,12 +339,11 @@ const MonitorTasks = () => {
     setEditingTask(null);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-    // 验证邮箱配置
     if (!formData.email_config_id) {
-      alert('请选择邮件配置后再创建任务。如果您还没有配置邮箱，请先在"邮件通知配置"页面添加邮箱配置。');
+      window.alert(content.selectEmailBeforeCreate);
       return;
     }
 
@@ -247,7 +355,7 @@ const MonitorTasks = () => {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('确定要删除这个监控任务吗？')) {
+    if (window.confirm(content.deleteConfirm)) {
       deleteMutation.mutate(id);
     }
   };
@@ -255,21 +363,20 @@ const MonitorTasks = () => {
   const handleTest = (id) => {
     testMutation.mutate(id, {
       onSuccess: (data) => {
-        alert(`测试成功！\\n内容: ${data.content?.substring(0, 100)}...`);
+        window.alert(`${content.testSuccess}\n${content.contentLabel}: ${data.content?.substring(0, 100) || ''}...`);
       },
-      onError: (error) => {
-        alert(`测试失败: ${error.response?.data?.detail || error.message}`);
+      onError: (errorValue) => {
+        window.alert(`${content.testFailed}: ${getReadableError(errorValue)}`);
       },
     });
   };
 
   if (error) {
-    return <Alert severity="error">加载监控任务失败: {error.message}</Alert>;
+    return <Alert severity="error">{content.loadTasksError}: {error.message}</Alert>;
   }
 
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -290,10 +397,10 @@ const MonitorTasks = () => {
               mb: 1,
             }}
           >
-            监控任务管理
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            管理和配置您的网页监控任务
+            {content.subtitle}
           </Typography>
         </Box>
         <Button
@@ -315,34 +422,32 @@ const MonitorTasks = () => {
             },
           }}
         >
-          创建新任务
+          {content.createTask}
         </Button>
       </Box>
 
-      {/* 黑名单说明卡片 - 仅对普通用户显示 */}
       {!user?.is_admin && (
         <Card sx={{ mb: 4, backgroundColor: alpha('#ef4444', 0.04), border: `1px solid ${alpha('#ef4444', 0.12)}` }}>
           <CardContent sx={{ py: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
               <MonitorIcon sx={{ fontSize: 20, color: '#ef4444' }} />
               <Typography variant="h6" sx={{ fontWeight: 600, color: '#ef4444' }}>
-                黑名单限制说明
+                {content.blacklistTitle}
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-              • 普通用户无法监控黑名单中禁止的网站域名
+              • {content.blacklistItem1}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-              • 如需监控被限制的网站，请联系管理员将域名从黑名单中移除
+              • {content.blacklistItem2}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-              • 管理员可访问"黑名单管理"功能进行域名管理
+              • {content.blacklistItem3}
             </Typography>
           </CardContent>
         </Card>
       )}
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -385,7 +490,7 @@ const MonitorTasks = () => {
                   {tasks.length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  总任务数
+                  {content.totalTasks}
                 </Typography>
               </Box>
             </CardContent>
@@ -429,10 +534,10 @@ const MonitorTasks = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {tasks.filter(task => task.is_active).length}
+                  {tasks.filter((task) => task.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  活跃任务
+                  {content.activeTasks}
                 </Typography>
               </Box>
             </CardContent>
@@ -476,10 +581,10 @@ const MonitorTasks = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {tasks.filter(task => !task.is_active).length}
+                  {tasks.filter((task) => !task.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  暂停任务
+                  {content.pausedTasks}
                 </Typography>
               </Box>
             </CardContent>
@@ -523,10 +628,10 @@ const MonitorTasks = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {tasks.filter(task => task.email_config_id).length}
+                  {tasks.filter((task) => task.email_config_id).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  邮件通知
+                  {content.emailNotifications}
                 </Typography>
               </Box>
             </CardContent>
@@ -534,7 +639,6 @@ const MonitorTasks = () => {
         </Grid>
       </Grid>
 
-      {/* Tasks Table */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -544,7 +648,7 @@ const MonitorTasks = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            监控任务列表
+            {content.taskList}
           </Typography>
         </Box>
         {tasks.length === 0 ? (
@@ -562,10 +666,10 @@ const MonitorTasks = () => {
               <MonitorIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无监控任务
+              {content.noTasks}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              创建您的第一个监控任务开始监控网页内容变化
+              {content.noTasksSubtitle}
             </Typography>
             <Button
               variant="contained"
@@ -577,7 +681,7 @@ const MonitorTasks = () => {
                 fontWeight: 'bold',
               }}
             >
-              创建第一个任务
+              {content.createFirstTask}
             </Button>
           </Box>
         ) : (
@@ -585,12 +689,12 @@ const MonitorTasks = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>任务信息</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>监控配置</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>检查间隔</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>邮件通知</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>状态</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.taskInfo}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.monitorConfig}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.interval}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.emailConfig}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.status}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -641,14 +745,14 @@ const MonitorTasks = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {task.xpath ? task.xpath.substring(0, 50) + '...' : '未设置'}
+                        {task.xpath ? `${task.xpath.substring(0, 50)}...` : content.notSet}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <ScheduleIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
                         <Typography variant="body2">
-                          {task.interval}秒
+                          {task.interval}{content.seconds}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -664,13 +768,13 @@ const MonitorTasks = () => {
                       <Chip
                         size="small"
                         icon={task.is_active ? <SuccessIcon /> : <PauseIcon />}
-                        label={task.is_active ? '运行中' : '已暂停'}
+                        label={task.is_active ? content.running : content.paused}
                         color={task.is_active ? 'success' : 'error'}
                       />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="测试监控">
+                        <Tooltip title={content.testMonitor}>
                           <IconButton
                             size="small"
                             onClick={() => handleTest(task.id)}
@@ -682,7 +786,7 @@ const MonitorTasks = () => {
                             <TestIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="编辑任务">
+                        <Tooltip title={content.editTask}>
                           <IconButton
                             size="small"
                             onClick={() => handleOpen(task)}
@@ -694,7 +798,7 @@ const MonitorTasks = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="删除任务">
+                        <Tooltip title={content.deleteTask}>
                           <IconButton
                             size="small"
                             onClick={() => handleDelete(task.id)}
@@ -716,7 +820,6 @@ const MonitorTasks = () => {
         )}
       </Paper>
 
-      {/* Enhanced Dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -739,19 +842,17 @@ const MonitorTasks = () => {
             },
           }}
         >
-          {editingTask ? '编辑监控任务' : '创建新监控任务'}
+          {editingTask ? content.editDialogTitle : content.createDialogTitle}
         </DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent sx={{ pt: 3 }}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
-                  label="任务名称"
+                  label={content.taskName}
                   fullWidth
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -768,12 +869,10 @@ const MonitorTasks = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="监控URL"
+                  label={content.monitorUrl}
                   fullWidth
                   value={formData.url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, url: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   required
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -790,13 +889,11 @@ const MonitorTasks = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="XPath选择器"
+                  label={content.xpathSelector}
                   fullWidth
                   value={formData.xpath}
-                  onChange={(e) =>
-                    setFormData({ ...formData, xpath: e.target.value })
-                  }
-                  helperText="用于定位监控内容的XPath表达式"
+                  onChange={(e) => setFormData({ ...formData, xpath: e.target.value })}
+                  helperText={content.xpathHelper}
                   required
                   rows={1}
                   sx={{
@@ -814,14 +911,14 @@ const MonitorTasks = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="检查间隔（秒）"
+                  label={content.intervalSeconds}
                   type="number"
                   fullWidth
                   value={formData.interval}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      interval: parseInt(e.target.value) || 300,
+                      interval: parseInt(e.target.value, 10) || 300,
                     })
                   }
                   inputProps={{ min: 10 }}
@@ -840,16 +937,12 @@ const MonitorTasks = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth required>
-                  <InputLabel id="email-config-label">邮箱配置 *</InputLabel>
+                  <InputLabel id="email-config-label">{content.emailConfigRequired}</InputLabel>
                   <Select
                     labelId="email-config-label"
                     value={formData.email_config_id}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        email_config_id: e.target.value,
-                      })
-                    }
+                    label={content.emailConfigRequired}
+                    onChange={(e) => setFormData({ ...formData, email_config_id: e.target.value })}
                     required
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -865,7 +958,7 @@ const MonitorTasks = () => {
                   >
                     {emailConfigs.length === 0 ? (
                       <MenuItem disabled value="">
-                        <em>暂无邮箱配置，请先添加邮件配置</em>
+                        <em>{content.noEmailConfigOption}</em>
                       </MenuItem>
                     ) : (
                       emailConfigs.map((config) => (
@@ -877,22 +970,20 @@ const MonitorTasks = () => {
                   </Select>
                   {emailConfigs.length === 0 && (
                     <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-                      请先在"邮件通知配置"页面添加邮箱配置
+                      {content.addEmailConfigHint}
                     </Typography>
                   )}
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="任务描述"
+                  label={content.taskDescription}
                   fullWidth
                   multiline
                   rows={3}
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  helperText="可选的任务描述，公开任务时其他用户可以看到此描述"
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  helperText={content.taskDescriptionHelper}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&:hover fieldset': {
@@ -910,12 +1001,7 @@ const MonitorTasks = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
                   <Switch
                     checked={formData.is_public}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        is_public: e.target.checked,
-                      })
-                    }
+                    onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
                     sx={{
                       '& .MuiSwitch-thumb': {
                         backgroundColor: formData.is_public ? '#3b82f6' : 'default',
@@ -927,10 +1013,10 @@ const MonitorTasks = () => {
                   />
                   <Box sx={{ ml: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      公开任务
+                      {content.publicTask}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      公开后其他用户可以订阅此任务并收到变更通知
+                      {content.publicTaskHelper}
                     </Typography>
                   </Box>
                 </Box>
@@ -939,12 +1025,7 @@ const MonitorTasks = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, backgroundColor: 'rgba(16, 185, 129, 0.05)' }}>
                   <Switch
                     checked={formData.is_active}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        is_active: e.target.checked,
-                      })
-                    }
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     sx={{
                       '& .MuiSwitch-thumb': {
                         backgroundColor: formData.is_active ? '#10b981' : 'default',
@@ -956,10 +1037,10 @@ const MonitorTasks = () => {
                   />
                   <Box sx={{ ml: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      启用监控
+                      {content.enableMonitoring}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      立即开始监控指定网页
+                      {content.enableMonitoringHelper}
                     </Typography>
                   </Box>
                 </Box>
@@ -975,7 +1056,7 @@ const MonitorTasks = () => {
                 '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
               }}
             >
-              取消
+              {content.cancel}
             </Button>
             <Button
               type="submit"
@@ -994,21 +1075,22 @@ const MonitorTasks = () => {
                 },
               }}
             >
-              {editingTask ? '更新任务' : '创建任务'}
+              {editingTask ? content.updateTask : content.submitCreateTask}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* Footer GitHub Link */}
-      <Box sx={{
-        mt: 4,
-        p: 3,
-        textAlign: 'center',
-        borderTop: '1px solid rgba(0, 0, 0, 0.06)'
-      }}>
+      <Box
+        sx={{
+          mt: 4,
+          p: 3,
+          textAlign: 'center',
+          borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+        }}
+      >
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          项目开源，欢迎贡献代码
+          {t('common.footerCta')}
         </Typography>
         <Button
           variant="outlined"
@@ -1028,7 +1110,7 @@ const MonitorTasks = () => {
             },
           }}
         >
-          访问 GitHub 仓库
+          {t('common.visitGithub')}
         </Button>
       </Box>
     </Box>

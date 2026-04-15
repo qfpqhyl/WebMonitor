@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -37,7 +37,11 @@ import {
   NotInterested as BlockOffIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+
+import { formatDateTime } from '../utils/date';
+import { isChineseLanguage } from '../utils/i18n';
 
 const BlacklistManagement = () => {
   const [domains, setDomains] = useState([]);
@@ -53,27 +57,118 @@ const BlacklistManagement = () => {
     message: '',
     severity: 'success',
   });
+  const { i18n } = useTranslation();
+  const isChinese = isChineseLanguage(i18n.language);
 
-  // 获取黑名单列表
-  const fetchDomains = async () => {
+  const content = isChinese ? {
+    title: '黑名单管理',
+    subtitle: '管理禁止普通用户监控的网站域名',
+    addDomain: '添加域名',
+    totalDomains: '总域名数',
+    active: '启用中',
+    disabled: '已禁用',
+    wildcardDomains: '通配符域名',
+    guideTitle: '功能说明',
+    guideLine1: '普通用户无法监控黑名单中的域名',
+    guideLine2: '管理员可以监控任何网站，包括黑名单中的域名',
+    guideLine3: '黑名单支持通配符匹配（如 *.example.com 会阻止所有子域名）',
+    guideLine4: '支持部分匹配（如 example 会阻止包含 example 的所有域名）',
+    listTitle: '黑名单域名列表',
+    noDomains: '暂无黑名单域名',
+    noDomainsSubtitle: '添加需要禁止普通用户监控的域名',
+    addFirstDomain: '添加第一个域名',
+    domain: '域名',
+    description: '描述',
+    status: '状态',
+    createdAt: '创建时间',
+    actions: '操作',
+    wildcard: '通配符域名',
+    enabled: '启用',
+    disabledLabel: '禁用',
+    edit: '编辑',
+    delete: '删除',
+    editDialogTitle: '编辑黑名单域名',
+    createDialogTitle: '添加黑名单域名',
+    domainPlaceholder: '例如: example.com, *.example.com, example',
+    descriptionPlaceholder: '可选的域名描述信息',
+    enabledStatus: '启用状态',
+    cancel: '取消',
+    update: '更新',
+    create: '添加',
+    fetchFailed: '获取黑名单失败',
+    updateSuccess: '黑名单更新成功',
+    createSuccess: '黑名单添加成功',
+    saveFailed: '保存失败',
+    deleteConfirm: '确定要删除这个黑名单域名吗？',
+    deleteSuccess: '黑名单删除成功',
+    deleteFailed: '删除失败',
+    unknownError: '未知错误',
+  } : {
+    title: 'Blacklist management',
+    subtitle: 'Manage domains that regular users are not allowed to monitor.',
+    addDomain: 'Add domain',
+    totalDomains: 'Total domains',
+    active: 'Active',
+    disabled: 'Disabled',
+    wildcardDomains: 'Wildcard domains',
+    guideTitle: 'How it works',
+    guideLine1: 'Regular users cannot monitor domains on the blacklist.',
+    guideLine2: 'Admins can monitor any site, including blacklisted domains.',
+    guideLine3: 'The blacklist supports wildcard matching, for example *.example.com blocks all subdomains.',
+    guideLine4: 'Partial matching is supported, for example example blocks any domain containing example.',
+    listTitle: 'Blacklisted domains',
+    noDomains: 'No blacklisted domains yet',
+    noDomainsSubtitle: 'Add domains that regular users should not be allowed to monitor.',
+    addFirstDomain: 'Add first domain',
+    domain: 'Domain',
+    description: 'Description',
+    status: 'Status',
+    createdAt: 'Created at',
+    actions: 'Actions',
+    wildcard: 'Wildcard domain',
+    enabled: 'Enabled',
+    disabledLabel: 'Disabled',
+    edit: 'Edit',
+    delete: 'Delete',
+    editDialogTitle: 'Edit blacklisted domain',
+    createDialogTitle: 'Add blacklisted domain',
+    domainPlaceholder: 'For example: example.com, *.example.com, example',
+    descriptionPlaceholder: 'Optional description for this domain',
+    enabledStatus: 'Enabled status',
+    cancel: 'Cancel',
+    update: 'Update',
+    create: 'Add',
+    fetchFailed: 'Failed to fetch blacklist',
+    updateSuccess: 'Blacklist updated successfully',
+    createSuccess: 'Domain added to blacklist successfully',
+    saveFailed: 'Failed to save',
+    deleteConfirm: 'Are you sure you want to delete this blacklisted domain?',
+    deleteSuccess: 'Blacklisted domain deleted successfully',
+    deleteFailed: 'Failed to delete',
+    unknownError: 'Unknown error',
+  };
+
+  const getErrorMessage = useCallback((error) => {
+    return error.response?.data?.detail || content.unknownError;
+  }, [content.unknownError]);
+
+  const fetchDomains = useCallback(async () => {
     try {
       const response = await axios.get('/api/blacklist-domains');
       setDomains(response.data);
     } catch (error) {
-      console.error('获取黑名单失败:', error);
       setSnackbar({
         open: true,
-        message: '获取黑名单失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.fetchFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
-  };
+  }, [content.fetchFailed, getErrorMessage]);
 
   useEffect(() => {
     fetchDomains();
-  }, []);
+  }, [fetchDomains]);
 
-  // 打开对话框
   const handleOpenDialog = (domain = null) => {
     setEditingDomain(domain);
     setFormData({
@@ -84,7 +179,6 @@ const BlacklistManagement = () => {
     setDialogOpen(true);
   };
 
-  // 关闭对话框
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setEditingDomain(null);
@@ -95,69 +189,62 @@ const BlacklistManagement = () => {
     });
   };
 
-  // 提交表单
   const handleSubmit = async () => {
     try {
       if (editingDomain) {
-        // 更新黑名单
         await axios.put(`/api/blacklist-domains/${editingDomain.id}`, formData);
         setSnackbar({
           open: true,
-          message: '黑名单更新成功',
+          message: content.updateSuccess,
           severity: 'success',
         });
       } else {
-        // 创建黑名单
         await axios.post('/api/blacklist-domains', formData);
         setSnackbar({
           open: true,
-          message: '黑名单添加成功',
+          message: content.createSuccess,
           severity: 'success',
         });
       }
       handleCloseDialog();
       fetchDomains();
     } catch (error) {
-      console.error('保存失败:', error);
       setSnackbar({
         open: true,
-        message: '保存失败: ' + (error.response?.data?.detail || '未知错误'),
+        message: `${content.saveFailed}: ${getErrorMessage(error)}`,
         severity: 'error',
       });
     }
   };
 
-  // 删除黑名单
   const handleDelete = async (domainId) => {
-    if (window.confirm('确定要删除这个黑名单域名吗？')) {
-      try {
-        await axios.delete(`/api/blacklist-domains/${domainId}`);
-        setSnackbar({
-          open: true,
-          message: '黑名单删除成功',
-          severity: 'success',
-        });
-        fetchDomains();
-      } catch (error) {
-        console.error('删除失败:', error);
-        setSnackbar({
-          open: true,
-          message: '删除失败: ' + (error.response?.data?.detail || '未知错误'),
-          severity: 'error',
-        });
-      }
+    if (!window.confirm(content.deleteConfirm)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/blacklist-domains/${domainId}`);
+      setSnackbar({
+        open: true,
+        message: content.deleteSuccess,
+        severity: 'success',
+      });
+      fetchDomains();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: `${content.deleteFailed}: ${getErrorMessage(error)}`,
+        severity: 'error',
+      });
     }
   };
 
-  // 关闭提示
   const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+    setSnackbar((previous) => ({ ...previous, open: false }));
   };
 
-  
   return (
     <Box>
-      {/* Header Section */}
       <Box
         sx={{
           display: 'flex',
@@ -178,10 +265,10 @@ const BlacklistManagement = () => {
               mb: 1,
             }}
           >
-            黑名单管理
+            {content.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            管理禁止普通用户监控的网站域名
+            {content.subtitle}
           </Typography>
         </Box>
         <Button
@@ -203,11 +290,10 @@ const BlacklistManagement = () => {
             },
           }}
         >
-          添加域名
+          {content.addDomain}
         </Button>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
@@ -251,7 +337,7 @@ const BlacklistManagement = () => {
                   {domains.length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  总域名数
+                  {content.totalDomains}
                 </Typography>
               </Box>
             </CardContent>
@@ -296,10 +382,10 @@ const BlacklistManagement = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {domains.filter(domain => domain.is_active).length}
+                  {domains.filter((domain) => domain.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  启用中
+                  {content.active}
                 </Typography>
               </Box>
             </CardContent>
@@ -344,10 +430,10 @@ const BlacklistManagement = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {domains.filter(domain => !domain.is_active).length}
+                  {domains.filter((domain) => !domain.is_active).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  已禁用
+                  {content.disabled}
                 </Typography>
               </Box>
             </CardContent>
@@ -392,10 +478,10 @@ const BlacklistManagement = () => {
               </Box>
               <Box>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.5 }}>
-                  {domains.filter(domain => domain.domain.startsWith('*')).length}
+                  {domains.filter((domain) => domain.domain.startsWith('*')).length}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  通配符域名
+                  {content.wildcardDomains}
                 </Typography>
               </Box>
             </CardContent>
@@ -403,31 +489,29 @@ const BlacklistManagement = () => {
         </Grid>
       </Grid>
 
-      {/* 功能说明卡片 */}
       <Card sx={{ mb: 4, backgroundColor: alpha('#1976d2', 0.04), border: `1px solid ${alpha('#1976d2', 0.12)}` }}>
         <CardContent sx={{ py: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
             <SecurityIcon sx={{ fontSize: 20, color: '#1976d2' }} />
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
-              功能说明
+              {content.guideTitle}
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 普通用户无法监控黑名单中的域名
+            • {content.guideLine1}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 管理员可以监控任何网站，包括黑名单中的域名
+            • {content.guideLine2}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 黑名单支持通配符匹配（如 *.example.com 会阻止所有子域名）
+            • {content.guideLine3}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 5 }}>
-            • 支持部分匹配（如 example 会阻止包含 example 的所有域名）
+            • {content.guideLine4}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* Blacklist Table */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -437,7 +521,7 @@ const BlacklistManagement = () => {
       >
         <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            黑名单域名列表
+            {content.listTitle}
           </Typography>
         </Box>
         {domains.length === 0 ? (
@@ -455,10 +539,10 @@ const BlacklistManagement = () => {
               <SecurityIcon sx={{ fontSize: 40 }} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              暂无黑名单域名
+              {content.noDomains}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              添加需要禁止普通用户监控的域名
+              {content.noDomainsSubtitle}
             </Typography>
             <Button
               variant="contained"
@@ -470,7 +554,7 @@ const BlacklistManagement = () => {
                 fontWeight: 'bold',
               }}
             >
-              添加第一个域名
+              {content.addFirstDomain}
             </Button>
           </Box>
         ) : (
@@ -478,11 +562,11 @@ const BlacklistManagement = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'rgba(25, 118, 210, 0.05)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>域名</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>描述</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>状态</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>创建时间</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>操作</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.domain}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.description}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.status}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.createdAt}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{content.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -515,7 +599,7 @@ const BlacklistManagement = () => {
                           </Typography>
                           {domain.domain.startsWith('*') && (
                             <Typography variant="caption" color="text.secondary">
-                              通配符域名
+                              {content.wildcard}
                             </Typography>
                           )}
                         </Box>
@@ -529,7 +613,7 @@ const BlacklistManagement = () => {
                     <TableCell>
                       <Chip
                         size="small"
-                        label={domain.is_active ? '启用' : '禁用'}
+                        label={domain.is_active ? content.enabled : content.disabledLabel}
                         color={domain.is_active ? 'error' : 'default'}
                         icon={domain.is_active ? <BlockIcon /> : null}
                         variant="outlined"
@@ -537,12 +621,12 @@ const BlacklistManagement = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(domain.created_at).toLocaleString()}
+                        {formatDateTime(domain.created_at, i18n.language)}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="编辑">
+                        <Tooltip title={content.edit}>
                           <IconButton
                             size="small"
                             onClick={() => handleOpenDialog(domain)}
@@ -554,7 +638,7 @@ const BlacklistManagement = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="删除">
+                        <Tooltip title={content.delete}>
                           <IconButton
                             size="small"
                             onClick={() => handleDelete(domain.id)}
@@ -576,13 +660,12 @@ const BlacklistManagement = () => {
         )}
       </Paper>
 
-      {/* 添加/编辑对话框 */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <SecurityIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             <Typography variant="h5" component="div">
-              {editingDomain ? '编辑黑名单域名' : '添加黑名单域名'}
+              {editingDomain ? content.editDialogTitle : content.createDialogTitle}
             </Typography>
           </Box>
         </DialogTitle>
@@ -590,52 +673,47 @@ const BlacklistManagement = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="域名"
+            label={content.domain}
             fullWidth
             variant="outlined"
             value={formData.domain}
-            onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+            onChange={(event) => setFormData({ ...formData, domain: event.target.value })}
             sx={{ mb: 2 }}
-            placeholder="例如: example.com, *.example.com, example"
+            placeholder={content.domainPlaceholder}
           />
           <TextField
             margin="dense"
-            label="描述"
+            label={content.description}
             fullWidth
             variant="outlined"
             multiline
             rows={3}
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(event) => setFormData({ ...formData, description: event.target.value })}
             sx={{ mb: 2 }}
-            placeholder="可选的域名描述信息"
+            placeholder={content.descriptionPlaceholder}
           />
           <FormControlLabel
             control={
               <Switch
                 checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                onChange={(event) => setFormData({ ...formData, is_active: event.target.checked })}
                 color="primary"
               />
             }
-            label="启用状态"
+            label={content.enabledStatus}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={handleCloseDialog} color="inherit">
-            取消
+            {content.cancel}
           </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={!formData.domain.trim()}
-          >
-            {editingDomain ? '更新' : '添加'}
+          <Button onClick={handleSubmit} variant="contained" disabled={!formData.domain.trim()}>
+            {editingDomain ? content.update : content.create}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* 提示消息 */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
