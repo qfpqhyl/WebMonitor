@@ -12,7 +12,7 @@
 
 **访问地址**: https://webmonitor.qfpqhyl.top/
 
-> 由于服务器部署在本人的 MacBook M4 Air 上，受限于设备性能，服务会随 Docker 启停而不定时可用。如需稳定使用，建议自行部署。
+> 由于后端服务部署在本人的 MacBook M4 Air 上，受限于设备性能，服务会随 Docker 启停而不定时可用。如需稳定使用，建议自行部署。
 
 ---
 
