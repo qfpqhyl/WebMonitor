@@ -29,7 +29,6 @@ import {
   People as PeopleIcon,
   Logout as LogoutIcon,
   AccountCircle as AccountIcon,
-  Monitor as MonitorIcon,
   NotificationsActive as NotificationsIcon,
   Mail as MailIcon,
   Security as SecurityIcon,
@@ -51,6 +50,7 @@ function Layout({ children }) {
   const location = useLocation();
   const { user, logout, isAdmin } = useAuth();
   const { t, i18n } = useTranslation();
+  const faviconSrc = `${process.env.PUBLIC_URL || ''}/favicon.svg`;
 
   const isChinese = isChineseLanguage(i18n.language);
 
@@ -143,17 +143,18 @@ function Layout({ children }) {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 3, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Avatar
+          <Box
+            component="img"
+            src={faviconSrc}
+            alt="WebMonitor"
             sx={{
               width: 40,
               height: 40,
               mr: 2,
-              background: 'linear-gradient(45deg, #10b981 30%, #059669 90%)',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+              display: 'block',
+              objectFit: 'contain',
             }}
-          >
-            <MonitorIcon sx={{ fontSize: 22 }} />
-          </Avatar>
+          />
           <Box>
             <Typography
               variant="h6"
@@ -314,16 +315,18 @@ function Layout({ children }) {
           </IconButton>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mr: 3 }}>
-              <Avatar
+              <Box
+                component="img"
+                src={faviconSrc}
+                alt="WebMonitor"
                 sx={{
                   width: 32,
                   height: 32,
                   mr: 1.5,
-                  background: 'linear-gradient(45deg, #10b981 30%, #059669 90%)',
+                  display: 'block',
+                  objectFit: 'contain',
                 }}
-              >
-                {currentMenuItem?.icon || <DashboardIcon />}
-              </Avatar>
+              />
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
                   {currentMenuItem?.text || 'WebMonitor'}

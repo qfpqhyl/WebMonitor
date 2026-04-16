@@ -36,7 +36,6 @@ import {
   BookmarkBorder as SubscribeIcon,
   BookmarkRemove as UnsubscribeIcon,
   Info as InfoIcon,
-  Monitor as MonitorIcon,
   Schedule as ScheduleIcon,
   Link as LinkIcon,
   CheckCircle as SuccessIcon,
@@ -44,6 +43,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 import { formatDateTime } from '../utils/date';
 import { isChineseLanguage } from '../utils/i18n';
 
@@ -474,12 +474,11 @@ const PublicTasks = () => {
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(167, 139, 250, 0.1)',
-                    color: '#a78bfa',
                     width: 48,
                     height: 48,
                   }}
                 >
-                  <MonitorIcon />
+                  <WebMonitorLogo size={28} />
                 </Avatar>
               </Box>
               <Box>

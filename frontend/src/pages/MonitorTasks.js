@@ -35,7 +35,6 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   PlayArrow as TestIcon,
-  Monitor as MonitorIcon,
   NotificationsActive as NotificationsIcon,
   Schedule as ScheduleIcon,
   CheckCircle as SuccessIcon,
@@ -48,6 +47,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
 import { useAuth } from '../contexts/AuthContext';
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 import { isChineseLanguage } from '../utils/i18n';
 
 const MonitorTasks = () => {
@@ -430,7 +430,7 @@ const MonitorTasks = () => {
         <Card sx={{ mb: 4, backgroundColor: alpha('#ef4444', 0.04), border: `1px solid ${alpha('#ef4444', 0.12)}` }}>
           <CardContent sx={{ py: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-              <MonitorIcon sx={{ fontSize: 20, color: '#ef4444' }} />
+              <WebMonitorLogo size={20} />
               <Typography variant="h6" sx={{ fontWeight: 600, color: '#ef4444' }}>
                 {content.blacklistTitle}
               </Typography>
@@ -477,12 +477,11 @@ const MonitorTasks = () => {
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(16, 185, 129, 0.1)',
-                    color: '#10b981',
                     width: 48,
                     height: 48,
                   }}
                 >
-                  <MonitorIcon />
+                  <WebMonitorLogo size={28} />
                 </Avatar>
               </Box>
               <Box>
@@ -656,14 +655,13 @@ const MonitorTasks = () => {
             <Avatar
               sx={{
                 bgcolor: 'rgba(16, 185, 129, 0.1)',
-                color: '#10b981',
                 width: 80,
                 height: 80,
                 mx: 'auto',
                 mb: 2,
               }}
             >
-              <MonitorIcon sx={{ fontSize: 40 }} />
+              <WebMonitorLogo size={48} />
             </Avatar>
             <Typography variant="h6" sx={{ mb: 1 }}>
               {content.noTasks}

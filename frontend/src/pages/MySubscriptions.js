@@ -36,12 +36,12 @@ import {
   Notifications as NotificationsActiveIcon,
   NotificationsOff as NotificationsOffIcon,
   Settings as SettingsIcon,
-  Monitor as MonitorIcon,
   Link as LinkIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
+import { WebMonitorLogo } from '../components/WebMonitorLogo';
 import { formatDateTime } from '../utils/date';
 import { isChineseLanguage } from '../utils/i18n';
 
@@ -450,12 +450,11 @@ const MySubscriptions = () => {
                 <Avatar
                   sx={{
                     bgcolor: 'rgba(167, 139, 250, 0.1)',
-                    color: '#a78bfa',
                     width: 48,
                     height: 48,
                   }}
                 >
-                  <MonitorIcon />
+                  <WebMonitorLogo size={28} />
                 </Avatar>
               </Box>
               <Box>
